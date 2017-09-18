@@ -9,21 +9,29 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.mygdx.zegame.Old.Player;
+import com.mygdx.zegame.Objects.CirclePlayer;
 
 public class Game extends ApplicationAdapter {
 
-	static final int WORLD_SIZE = 1000;
-	final int CAM_SPEED = 3;
+	private final int WORLD_SIZE = 10000;
+	private final int CAM_SPEED = 3;
+	private final float CAM_ROT_SPEED = 0.5f;
+	private OrthographicCamera cam;
 
-	private float rotationSpeed = 0.5f;
 	private SpriteBatch batch;
 	private ShapeRenderer shapeRenderer;
-	private OrthographicCamera cam;
 
 	private Sprite worldSprite;
 	private Sprite bgSprite;
 	private World world;
+	private CirclePlayer circlePlayer;
 	private Player player;
+	private SimpleObstacle so;
+
+	boolean leftPressed = false;
+	boolean rightPressed = false;
+	int camChangeTimeout = 0;
 
 	CameraType cameraType;
 
@@ -39,8 +47,10 @@ public class Game extends ApplicationAdapter {
 
 		world = new World(WORLD_SIZE);
 		player = new Player(WORLD_SIZE, world.getRadious());
+		circlePlayer = new CirclePlayer(WORLD_SIZE/2, WORLD_SIZE/2, world.getRadious(),20,10);
+		so = new SimpleObstacle(world.getRadious(), WORLD_SIZE);
 
-		cam = new OrthographicCamera(500,500 * (h/w));
+		cam = new OrthographicCamera(WORLD_SIZE,WORLD_SIZE * (h/w));
 		cam.position.set(cam.viewportWidth , cam.viewportHeight , 0);
 		cam.update();
 
@@ -58,12 +68,20 @@ public class Game extends ApplicationAdapter {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+		//player.calculateMoveUnitVectors();
+		//player.calculateMoveVector();
+		//player.movePlayerByMoveVector();
+
+
 		world.drawWorldSimple(shapeRenderer);
-		player.drawPlayerSimple(shapeRenderer);
+		circlePlayer.drawSimple(shapeRenderer);
+		//player.drawPlayerSimple(shapeRenderer);
 
 		if(cameraType == CameraType.PLAYER) {
 			centerCameraOnPlayer();
 		}
+
+		//so.draw(player.getPlayerCenterX(), player.getPlayerCenterY(), shapeRenderer);
 	}
 	
 	@Override
@@ -71,10 +89,12 @@ public class Game extends ApplicationAdapter {
 		shapeRenderer.dispose();
 	}
 
+
 	private void centerCameraOnPlayer(){
 		cam.up.set(0, -1, 0);
 		cam.position.set(player.getPlayerCenterX(), player.getPlayerCenterY(), 0);
 		cam.rotate(-player.getPlayerRotationFromCenter() - 90);
+		cam.zoom = 0.03f;
 	}
 
 	private void handleInputs(){
@@ -88,6 +108,25 @@ public class Game extends ApplicationAdapter {
 		else if(cameraType == CameraType.SATELITE){
 			//handleSateliteInputs();
 		}
+	}
+
+	private void handlePlayerInputs(){
+		boolean anythingHappened = false;
+		if(Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)){
+			player.increaseSpeedLeft();
+			anythingHappened = true;
+		}
+		if(Gdx.input.isKeyPressed(Input.Keys.D) && !Gdx.input.isKeyPressed(Input.Keys.A)){
+			player.increaseSpeedRight();
+			anythingHappened = true;
+		}
+		if(!anythingHappened){
+			player.decreaseSpeed();
+		}
+		if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
+			player.jump();
+		}
+
 	}
 
 	private void handleFreeInputs() {
@@ -110,10 +149,10 @@ public class Game extends ApplicationAdapter {
 			cam.translate(0, CAM_SPEED, 0);
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
-			cam.rotate(-rotationSpeed, 0, 0, 1);
+			cam.rotate(-CAM_ROT_SPEED, 0, 0, 1);
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.E)) {
-			cam.rotate(rotationSpeed, 0, 0, 1);
+			cam.rotate(CAM_ROT_SPEED, 0, 0, 1);
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)){
 			centerCameraOnPlayer();
@@ -129,14 +168,22 @@ public class Game extends ApplicationAdapter {
 	}
 
 	private void handleUniversalInputs(){
+		if(camChangeTimeout > 0) camChangeTimeout--;
+
 		if (Gdx.input.isKeyPressed(Input.Keys.V)){
-			if(cameraType == CameraType.PLAYER){
-				cameraType = CameraType.FREE;
-			}
-			if(cameraType == CameraType.FREE){
-				cameraType = CameraType.PLAYER;
+			if(camChangeTimeout == 0) {
+				camChangeTimeout = 50;
+				if (cameraType == CameraType.PLAYER) {
+					cameraType = CameraType.FREE;
+				} else if (cameraType == CameraType.FREE) {
+					cameraType = CameraType.PLAYER;
+				}
 			}
 		}
-	}
 
+		if (Gdx.input.isKeyPressed(Input.Keys.BACKSPACE)){
+			this.dispose();
+			this.create();
+		}
+	}
 }

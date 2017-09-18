@@ -13,7 +13,7 @@ public class World {
 
     public World(int worldSize){
         this.worldSize = worldSize;
-        this.worldRadius = worldSize/4;
+        this.worldRadius = worldSize/10;
 
     }
 
@@ -29,9 +29,9 @@ public class World {
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(0,0, worldSize, worldSize);
         shapeRenderer.setColor(Color.GRAY);
-        shapeRenderer.circle(worldSize /2, worldSize /2, worldRadius);
+        shapeRenderer.circle(worldSize /2, worldSize /2, worldRadius,1000);
         shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.circle(worldSize /2, worldSize /2, 5);
+        shapeRenderer.circle(worldSize /2, worldSize /2, 5,1000);
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
