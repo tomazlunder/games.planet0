@@ -4,6 +4,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.mygdx.zegame.Game;
 import com.badlogic.gdx.Input;
+import com.mygdx.zegame.GameTest;
 import net.java.games.input.Component;
 
 import java.awt.event.KeyEvent;
@@ -18,11 +19,11 @@ public class DesktopLauncher  {
 		config = new LwjglApplicationConfiguration();
 		config.title = "Title";
 		config.width = 1680;
-		config.height = 1050;
+		config.height = 980;
 		config.resizable = true;
 
 
-		 app = new LwjglApplication(new Game(), config);
+		 app = new LwjglApplication(new GameTest(), config);
 	}
 
 

@@ -10,7 +10,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.mygdx.zegame.Old.Player;
-import com.mygdx.zegame.Objects.CirclePlayer;
+import com.mygdx.zegame.Objects.moving.player.CirclePlayer;
+import com.mygdx.zegame.PlayerControllers.CirclePlayerController;
 
 public class Game extends ApplicationAdapter {
 
@@ -26,6 +27,7 @@ public class Game extends ApplicationAdapter {
 	private Sprite bgSprite;
 	private World world;
 	private CirclePlayer circlePlayer;
+	private CirclePlayerController cpc;
 	private Player player;
 	private SimpleObstacle so;
 
@@ -47,7 +49,8 @@ public class Game extends ApplicationAdapter {
 
 		world = new World(WORLD_SIZE);
 		player = new Player(WORLD_SIZE, world.getRadious());
-		circlePlayer = new CirclePlayer(WORLD_SIZE/2, WORLD_SIZE/2, world.getRadious(),20,10);
+		circlePlayer = new CirclePlayer(WORLD_SIZE/2, WORLD_SIZE/2, world.getRadious(),20);
+		cpc = new CirclePlayerController(circlePlayer);
 		so = new SimpleObstacle(world.getRadious(), WORLD_SIZE);
 
 		cam = new OrthographicCamera(WORLD_SIZE,WORLD_SIZE * (h/w));
@@ -60,7 +63,7 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void render () {
 		handleInputs();
-		//player.moveByAngle();
+		circlePlayer.movePlayerByMoveVector();
 
 		cam.update();
 		shapeRenderer.setProjectionMatrix(cam.combined);
@@ -69,9 +72,8 @@ public class Game extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		//player.calculateMoveUnitVectors();
-		//player.calculateMoveVector();
+		//player.calcMoveVector();
 		//player.movePlayerByMoveVector();
-
 
 		world.drawWorldSimple(shapeRenderer);
 		circlePlayer.drawSimple(shapeRenderer);
@@ -80,7 +82,7 @@ public class Game extends ApplicationAdapter {
 		if(cameraType == CameraType.PLAYER) {
 			centerCameraOnPlayer();
 		}
-
+		System.out.println(circlePlayer.toString());
 		//so.draw(player.getPlayerCenterX(), player.getPlayerCenterY(), shapeRenderer);
 	}
 	
@@ -92,8 +94,8 @@ public class Game extends ApplicationAdapter {
 
 	private void centerCameraOnPlayer(){
 		cam.up.set(0, -1, 0);
-		cam.position.set(player.getPlayerCenterX(), player.getPlayerCenterY(), 0);
-		cam.rotate(-player.getPlayerRotationFromCenter() - 90);
+		cam.position.set(circlePlayer.getCenterX(), circlePlayer.getCenterY(), 0);
+		cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
 		cam.zoom = 0.03f;
 	}
 
@@ -101,6 +103,7 @@ public class Game extends ApplicationAdapter {
 		handleUniversalInputs();
 		if(cameraType == CameraType.PLAYER){
 			//handlePlayerInputs();
+			cpc.handlePlayerInputs();
 		}
 		else if(cameraType == CameraType.FREE){
 			handleFreeInputs();

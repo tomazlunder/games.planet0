@@ -7,6 +7,7 @@ public abstract class GObject {
     protected float worldCenterX, worldCenterY, worldRadius;
     protected boolean collision;
     protected Circle collisionCircle;
+    protected float rotationFromCenter;
 
     public GObject(float centerX, float centerY, float worldCenterX, float worldCenterY){
         this.centerX = centerX;
@@ -14,6 +15,7 @@ public abstract class GObject {
         this.worldCenterX = worldCenterX;
         this.worldCenterY = worldCenterY;
         this.collision = true;
+        calculateRotationFromCenter();
     }
 
     public boolean getCollision(){return this.collision;}
@@ -40,12 +42,16 @@ public abstract class GObject {
 
     public Circle getCollCircle(){return this.collisionCircle;}
 
-    public float calculateRotationFromCenter(){
+    public void calculateRotationFromCenter(){
         double theta = Math.atan2(this.centerY - this.worldCenterY, this.centerX - this.worldCenterY);
         double angle = Math.toDegrees(theta);
         if(angle < 0 ){
             angle += 360;
         }
-        return (float) angle;
+        this.rotationFromCenter= (float) angle;
+    }
+
+    public float getRotationFromCenter() {
+        return this.rotationFromCenter;
     }
 }
