@@ -1,21 +1,34 @@
-package com.mygdx.zegame.Objects.moving.player;
+package com.mygdx.zegame.java.objects.moving.player;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.zegame.Objects.MovingGObject;
+import com.mygdx.zegame.java.objects.MovingGObject;
 
 public class CirclePlayer extends MovingGObject{
     private float GROUNDED_ERROR = 0.05f, MAX_SPEED = 6;
 
     private float radius;
+    private Texture texture;
+    private Sprite sprite;
+    private TextureRegion textureRegion;
+    private int testTick;
 
 
     public CirclePlayer(float x, float y, float wx, float wy, float wr, float height, float radius){
         super(x,y,wx,wy, wr);
         this.radius = radius;
         this.collisionCircle = new Circle(this.centerX,this.centerY,height/2);
+
+        this.texture = new Texture("player.png");
+        sprite = new Sprite(texture);
+        textureRegion = new TextureRegion(texture);
+        testTick=0;
     }
 
     public CirclePlayer(float wx, float wy, float wr, float radius){
@@ -23,12 +36,39 @@ public class CirclePlayer extends MovingGObject{
         this.radius = radius;
         this.maxSpeed = MAX_SPEED;
         this.collisionCircle = new Circle(this.centerX,this.centerY,radius);
+
+        this.texture = new Texture("player.png");
+        sprite = new Sprite(texture);
+        textureRegion = new TextureRegion(texture);
+        testTick=0;
     }
 
     public float getRadius(){return this.radius;}
     public void setRadius(float r){this.radius = r;}
 
-    public void drawSimple(ShapeRenderer shapeRenderer){
+    public void draw(SpriteBatch spriteBatch){
+        testTick++;
+        spriteBatch.begin();
+
+
+
+        Vector2 bla = new Vector2(centerX,centerY);
+        bla.mulAdd(downUnit,radius);
+        bla.mulAdd(downUnit.cpy().rotate(-90f),radius);
+        sprite.setPosition(centerX-sprite.getWidth()/2,centerY-sprite.getHeight()/2);
+        sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
+        sprite.setScale(0.05f);
+        sprite.setRotation(rotationFromCenter-90);
+        //sprite.setPosition(centerX-radius,centerY-radius);
+
+        //sprite.setPosition(bla.x,bla.y);
+        sprite.draw(spriteBatch);
+        //spriteBatch.draw(textureRegion,worldCenterX,worldCenterY, textureRegion.getRegionWidth()/2,textureRegion.getRegionHeight()/2, radius*4,radius*4,1f,1f, testTick%360);
+        //spriteBatch.draw(textureRegion, worldCenterX, worldCenterY, centerX, centerY, radius*200, radius*200, 10f, 10f, 0);
+        spriteBatch.end();
+    }
+
+    public void draw(ShapeRenderer shapeRenderer){
         //shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.GREEN);
@@ -50,13 +90,16 @@ public class CirclePlayer extends MovingGObject{
 
     public void calcMoveVector(float speedLeft, float speedRight, boolean jump){
         if(!isGrounded()){
+            airtime++;
+
             if(this.upAcc > 0){
-                this.upAcc-=1;
+                this.upAcc -= 0.34 * airtime ;
             }
         }
 
         if(jump && isGrounded()){
-            this.upAcc = 10;
+            airtime = 0;
+            this.upAcc = 8;
         }
 
         this.downSpeed = (this.worldRadius*this.worldRadius) / (this.distanceFromCenter*this.distanceFromCenter);

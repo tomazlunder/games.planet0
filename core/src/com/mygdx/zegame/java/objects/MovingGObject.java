@@ -1,4 +1,4 @@
-package com.mygdx.zegame.Objects;
+package com.mygdx.zegame.java.objects;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -6,6 +6,7 @@ public abstract class MovingGObject extends GObject {
     protected float worldRadius;
 
     protected Vector2 leftUnit, rightUnit, upUnit, downUnit;
+    protected int airtime;
     protected float leftSpeed, rightSpeed, upSpeed, downSpeed; //Down speed AKA gravity
     protected float maxSpeed;
     protected float leftAcc, rightAcc, upAcc, downAcc;
@@ -38,7 +39,7 @@ public abstract class MovingGObject extends GObject {
         //Getting the unit vector pointing from center to player
         //Subtract two points, normalize
         Vector2 calc = player.sub(center);
-        calc.scl(1/this.distanceFromCenter);
+        calc.nor();
 
         //We then rotate it by 90 and -90 degrees to get the unit vectors in the LEFT and RIGHT
         // moving directions (relative to player head up).

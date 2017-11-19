@@ -1,4 +1,4 @@
-package com.mygdx.zegame;
+package com.mygdx.zegame.java.deprecated;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;

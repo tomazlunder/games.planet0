@@ -1,6 +1,7 @@
-package com.mygdx.zegame.Objects;
+package com.mygdx.zegame.java.objects;
 
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Vector2;
 
 public abstract class GObject {
     protected float centerX, centerY;
@@ -26,6 +27,7 @@ public abstract class GObject {
     public float getCenterY(){
         return centerY;
     }
+    public Vector2 getCenterVector(){return new Vector2(centerX,centerY);}
     public void setCenterX(float x){
         this.centerX = x;
     }

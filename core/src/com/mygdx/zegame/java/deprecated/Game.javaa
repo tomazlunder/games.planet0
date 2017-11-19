@@ -9,9 +9,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.mygdx.zegame.Old.Player;
-import com.mygdx.zegame.Objects.moving.player.CirclePlayer;
-import com.mygdx.zegame.PlayerControllers.CirclePlayerController;
+import com.mygdx.zegame.java.deprecated.Player;
+import com.mygdx.zegame.java.objects.moving.player.CirclePlayer;
+import com.mygdx.zegame.java.playercontrollers.CirclePlayerController;
 
 public class Game extends ApplicationAdapter {
 
@@ -20,11 +20,16 @@ public class Game extends ApplicationAdapter {
 	private final float CAM_ROT_SPEED = 0.5f;
 	private OrthographicCamera cam;
 
+	private int drawMode;
+	//Draw mode: Sprites - 0
 	private SpriteBatch batch;
-	private ShapeRenderer shapeRenderer;
 
+	//Draw mode: Simple shapes (debug)-  1
 	private Sprite worldSprite;
 	private Sprite bgSprite;
+
+	private ShapeRenderer shapeRenderer;
+
 	private World world;
 	private CirclePlayer circlePlayer;
 	private CirclePlayerController cpc;
@@ -41,6 +46,9 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void create () {
+		//
+		drawMode = 0;
+
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 

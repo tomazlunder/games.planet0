@@ -2,13 +2,7 @@ package com.mygdx.zegame.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.mygdx.zegame.Game;
-import com.badlogic.gdx.Input;
-import com.mygdx.zegame.GameTest;
-import net.java.games.input.Component;
-
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import com.mygdx.zegame.java.GameTest;
 
 
 public class DesktopLauncher  {

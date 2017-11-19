@@ -1,4 +1,4 @@
-package com.mygdx.zegame.Old;
+package com.mygdx.zegame.java.deprecated;
 
 public final class Physics {
 

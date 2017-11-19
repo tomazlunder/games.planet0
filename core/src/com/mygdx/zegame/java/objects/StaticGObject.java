@@ -1,4 +1,4 @@
-package com.mygdx.zegame.Objects;
+package com.mygdx.zegame.java.objects;
 
 public abstract class StaticGObject extends GObject {
 
