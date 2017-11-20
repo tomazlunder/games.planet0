@@ -12,8 +12,10 @@ public class World {
 
     private int worldSize;
     private int worldRadius;
-    private Texture texture;
+    //private Texture texture;
     private Texture textureYellow;
+
+    private Texture texLU,texLD, texRU, texRD;
 
     private float x, y;
 
@@ -23,11 +25,18 @@ public class World {
         this.x = worldSize/2;
         this.y = worldSize/2;
 
-        this.texture = new Texture(Gdx.files.internal("world8K.png"));
-        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        //this.texture = new Texture(Gdx.files.internal("world8K.png"));
+        //texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
+        this.texLU = new Texture("world8KqLU.png");
+        this.texLD = new Texture("world8KqLD.png");
+        this.texRU = new Texture("world8KqRU.png");
+        this.texRD = new Texture("world8KqRD.png");
 
-
+        texLU.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        texLD.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        texRU.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        texRD.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         this.textureYellow = new Texture(Gdx.files.internal("1010yellow.png"));
     }
@@ -68,7 +77,13 @@ public class World {
 
     public void draw(SpriteBatch spriteBatch){
         spriteBatch.begin();
-        spriteBatch.draw(texture,(worldSize/2-worldRadius),(worldSize/2)-worldRadius, worldRadius*2, worldRadius*2);
+        //spriteBatch.draw(texture,(worldSize/2-worldRadius),(worldSize/2)-worldRadius, worldRadius*2, worldRadius*2);
+
+        spriteBatch.draw(texLU, worldSize/2 - worldRadius, worldSize/2, worldRadius, worldRadius);
+        spriteBatch.draw(texLD, worldSize/2-worldRadius, worldSize/2-worldRadius, worldRadius, worldRadius);
+        spriteBatch.draw(texRU, worldSize/2, worldSize/2, worldRadius, worldRadius);
+        spriteBatch.draw(texRD, worldSize/2, worldSize/2-worldRadius, worldRadius, worldRadius);
+
         spriteBatch.draw(textureYellow, x-5, y+worldRadius,10,50);
         spriteBatch.end();
 

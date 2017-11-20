@@ -11,15 +11,11 @@ public class DesktopLauncher  {
 
 	public static void main (String[] arg) {
 		config = new LwjglApplicationConfiguration();
-		config.title = "Title";
+		config.title = "zeGame";
 		config.width = 1680;
 		config.height = 980;
 		config.resizable = true;
 
-
 		 app = new LwjglApplication(new GameTest(), config);
 	}
-
-
-
 }

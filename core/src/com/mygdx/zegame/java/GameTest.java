@@ -152,8 +152,8 @@ public class GameTest extends ApplicationAdapter {
         cam.up.set(0, -1, 0);
         cam.position.set(circlePlayer.getCenterX(), circlePlayer.getCenterY(), 0);
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
-        //cam.zoom = ((40*15)/WORLD_SIZE);
-        cam.zoom=(0.07f);
+        cam.zoom = ((20f*40f)/(float)WORLD_SIZE);
+        //cam.zoom = (((float)WORLD_SIZE/142852f));
         //cam.zoom = 0.03f;
     }
 
