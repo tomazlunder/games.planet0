@@ -108,8 +108,8 @@ public class GameTest extends ApplicationAdapter {
 
 
         if(cameraType == CameraType.PLAYER) {
-            centerCameraOnPlayer();
-            //centerCameraOnPlayerGround();
+            //centerCameraOnPlayer();
+            cameraFollowSmooth();
         }
         //System.out.println(circlePlayer.toString());
         /**
@@ -153,29 +153,19 @@ public class GameTest extends ApplicationAdapter {
         cam.position.set(circlePlayer.getCenterX(), circlePlayer.getCenterY(), 0);
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
         cam.zoom = ((20f*40f)/(float)WORLD_SIZE);
-        //cam.zoom = (((float)WORLD_SIZE/142852f));
-        //cam.zoom = 0.03f;
     }
 
-    private void centerCameraOnPlayerGround(){
-        Vector2 camVec = Commons.vec3to2(cam.position);
-        Vector2 planetToPlayer = circlePlayer.planetToPlayer();
-        Vector2 playerCenter = circlePlayer.getCenterVector();
-
-        Vector2 moveVec = planetToPlayer.cpy().rotate(180).nor();
-        moveVec.scl(circlePlayer.heigthFromGround());
-        playerCenter.add(moveVec);
-
-        cam.up.set(0, -1, 0);
-        cam.position.set(playerCenter.x,playerCenter.y,0);
-        cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
-        cam.zoom=(0.07f);
-    }
-
-    private void moveCameraByDeltaTime(Vector2 newPosition){
+    private void cameraFollowSmooth(){
         //Cur possition
         Vector2 camVec = Commons.vec3to2(cam.position);
-        Vector2 oldToNew = camVec.cpy().sub(newPosition);
+        Vector2 newVec = circlePlayer.getCenterVector().sub(camVec).scl(0.3f *60 * deltaTime);
+
+        cam.position.x+= newVec.x;
+        cam.position.y+= newVec.y;
+
+        cam.up.set(0, -1, 0);
+        cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
+        cam.zoom = ((20f*40f)/(float)WORLD_SIZE);
         //oldToNew.scl
 
     }

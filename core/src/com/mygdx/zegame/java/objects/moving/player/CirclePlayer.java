@@ -50,8 +50,6 @@ public class CirclePlayer extends MovingGObject{
         testTick++;
         spriteBatch.begin();
 
-
-
         Vector2 bla = new Vector2(centerX,centerY);
         bla.mulAdd(downUnit,radius);
         bla.mulAdd(downUnit.cpy().rotate(-90f),radius);
@@ -60,12 +58,8 @@ public class CirclePlayer extends MovingGObject{
         sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
         sprite.setScale(0.04f);
         sprite.setRotation(rotationFromCenter-90);
-        //sprite.setPosition(centerX-radius,centerY-radius);
 
-        //sprite.setPosition(bla.x,bla.y);
         sprite.draw(spriteBatch);
-        //spriteBatch.draw(textureRegion,worldCenterX,worldCenterY, textureRegion.getRegionWidth()/2,textureRegion.getRegionHeight()/2, radius*4,radius*4,1f,1f, testTick%360);
-        //spriteBatch.draw(textureRegion, worldCenterX, worldCenterY, centerX, centerY, radius*200, radius*200, 10f, 10f, 0);
         spriteBatch.end();
     }
 
@@ -102,7 +96,7 @@ public class CirclePlayer extends MovingGObject{
             airtime++;
 
             if(this.upAcc > 0){
-                this.upAcc -= 0.34 * airtime ;
+                this.upAcc -= 0.3 * airtime/2 ;
             }
         }
 

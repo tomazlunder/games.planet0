@@ -33,10 +33,10 @@ public class CirclePlayerController implements PlayerController {
     @Override
     public void handlePlayerInputs(float deltaTime) {
         this.jump = false;
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.A) && circlePlayer.isGrounded()) {
             if (speedLeft < accMax) speedLeft += acc * deltaTime * 60;
 
-        } else if (speedLeft > 0) {
+        } else if (speedLeft > 0 && circlePlayer.isGrounded()) {
             if(speedLeft -deAcc>=0) {
                 speedLeft -= deAcc * deltaTime * 60;
             } else {
@@ -44,10 +44,10 @@ public class CirclePlayerController implements PlayerController {
             }
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.D) && circlePlayer.isGrounded()) {
             if (speedRight < accMax) speedRight += acc * deltaTime * 60;
             rightPressedLast = true;
-        } else if (speedRight > 0) {
+        } else if (speedRight > 0 && circlePlayer.isGrounded()) {
             if(speedRight -deAcc>=0) {
                 speedRight -= deAcc * deltaTime * 60;
             } else {
