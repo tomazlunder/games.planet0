@@ -25,8 +25,8 @@ public class CirclePlayer extends MovingGObject{
         this.radius = radius;
         this.collisionCircle = new Circle(this.centerX,this.centerY,height/2);
 
-        this.texture = new Texture("player.png");
-        sprite = new Sprite(texture);
+        this.texture = new Texture("nates.png");
+        sprite = new Sprite(texture,40,40);
         textureRegion = new TextureRegion(texture);
         testTick=0;
     }
@@ -37,7 +37,7 @@ public class CirclePlayer extends MovingGObject{
         this.maxSpeed = MAX_SPEED;
         this.collisionCircle = new Circle(this.centerX,this.centerY,radius);
 
-        this.texture = new Texture("player.png");
+        this.texture = new Texture("nates.png");
         sprite = new Sprite(texture);
         textureRegion = new TextureRegion(texture);
         testTick=0;
@@ -55,9 +55,10 @@ public class CirclePlayer extends MovingGObject{
         Vector2 bla = new Vector2(centerX,centerY);
         bla.mulAdd(downUnit,radius);
         bla.mulAdd(downUnit.cpy().rotate(-90f),radius);
+
         sprite.setPosition(centerX-sprite.getWidth()/2,centerY-sprite.getHeight()/2);
         sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
-        sprite.setScale(0.05f);
+        sprite.setScale(0.04f);
         sprite.setRotation(rotationFromCenter-90);
         //sprite.setPosition(centerX-radius,centerY-radius);
 
@@ -88,6 +89,14 @@ public class CirclePlayer extends MovingGObject{
         return (this.distanceFromCenter <= this.worldRadius+this.radius+GROUNDED_ERROR);
     }
 
+    public float heigthFromGround(){
+        return (this.distanceFromCenter-(this.worldRadius+this.radius));
+    }
+
+    public Vector2 planetToPlayer(){
+        return (new Vector2(centerX-worldCenterX,centerY-worldCenterY));
+    }
+
     public void calcMoveVector(float speedLeft, float speedRight, boolean jump){
         if(!isGrounded()){
             airtime++;
@@ -99,7 +108,7 @@ public class CirclePlayer extends MovingGObject{
 
         if(jump && isGrounded()){
             airtime = 0;
-            this.upAcc = 8;
+            this.upAcc = 10;
         }
 
         this.downSpeed = (this.worldRadius*this.worldRadius) / (this.distanceFromCenter*this.distanceFromCenter);
@@ -125,6 +134,8 @@ public class CirclePlayer extends MovingGObject{
         this.centerX = currPos.x;
         this.centerY = currPos.y;
         calculateRotationFromCenter();
+
+        if(isGrounded()){airtime=0;}
     }
 
     public String toString(){

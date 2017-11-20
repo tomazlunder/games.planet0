@@ -12,7 +12,8 @@ public class World {
 
     private int worldSize;
     private int worldRadius;
-    private Texture texture, t2;
+    private Texture texture;
+    private Texture textureYellow;
 
     private float x, y;
 
@@ -22,14 +23,13 @@ public class World {
         this.x = worldSize/2;
         this.y = worldSize/2;
 
-        this.texture = new Texture(Gdx.files.internal("world.png"));
+        this.texture = new Texture(Gdx.files.internal("world8K.png"));
         texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-        Pixmap pixmap = new Pixmap(worldRadius*2,worldRadius*2, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.RED);
-        pixmap.fillCircle((int) x, (int) y, worldRadius);
 
-        this.t2 = new Texture(pixmap);
+
+
+        this.textureYellow = new Texture(Gdx.files.internal("1010yellow.png"));
     }
 
 
@@ -69,6 +69,9 @@ public class World {
     public void draw(SpriteBatch spriteBatch){
         spriteBatch.begin();
         spriteBatch.draw(texture,(worldSize/2-worldRadius),(worldSize/2)-worldRadius, worldRadius*2, worldRadius*2);
+        spriteBatch.draw(textureYellow, x-5, y+worldRadius,10,50);
         spriteBatch.end();
+
+
     }
 }

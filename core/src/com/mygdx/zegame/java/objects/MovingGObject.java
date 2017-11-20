@@ -55,13 +55,17 @@ public abstract class MovingGObject extends GObject {
         this.distanceFromCenter = center.dst(new Vector2(this.centerX, this.centerY));
     }
 
-    public void calcMoveVector(){
+    public float getWorldRadius(){
+        return worldRadius;
+    }
+
+    public void calcMoveVector(float deltaTime){
 
         Vector2 moveVector = downUnit.cpy();
 
-        moveVector.add(upUnit.cpy().scl(upSpeed));
-        moveVector.add(leftUnit.scl(leftSpeed));
-        moveVector.add(rightUnit.scl(rightSpeed));
+        moveVector.add(upUnit.cpy().scl(upSpeed*deltaTime));
+        moveVector.add(leftUnit.scl(leftSpeed*deltaTime));
+        moveVector.add(rightUnit.scl(rightSpeed*deltaTime));
 
         this.moveVector = moveVector.cpy();
     }

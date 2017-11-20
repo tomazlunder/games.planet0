@@ -12,15 +12,16 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.zegame.java.objects.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.playercontrollers.CirclePlayerController;
+import com.sun.javafx.geom.Vec2d;
 
 public class GameTest extends ApplicationAdapter {
 
     private final int DRAW_MODE = 0;
 
-    private final int WORLD_SIZE = 10000;
+    private final int WORLD_SIZE = 100000;
     private final int CAM_SPEED = 3;
     private final float CAM_ROT_SPEED = 0.5f;
-    private final float CAM_FOLLOW_MAX_DIST = 20;
+    private final float CAM_FOLLOW_MAX_DIST = 100;
     private OrthographicCamera cam;
 
     /*
@@ -49,6 +50,7 @@ public class GameTest extends ApplicationAdapter {
     private World world;
     private CirclePlayer circlePlayer;
     private CirclePlayerController cpc;
+    private float deltaTime;
     int tick;
 
     /**
@@ -90,6 +92,7 @@ public class GameTest extends ApplicationAdapter {
 
     @Override
     public void render () {
+        deltaTime = Gdx.graphics.getDeltaTime();
         tick++;
         handleInputs();
         cpc.updatePlayer();
@@ -106,12 +109,13 @@ public class GameTest extends ApplicationAdapter {
 
         if(cameraType == CameraType.PLAYER) {
             centerCameraOnPlayer();
+            //centerCameraOnPlayerGround();
         }
         //System.out.println(circlePlayer.toString());
         /**
          * TEST
          */
-        if(tick%100000 == 0){
+        if(tick%100 == 0){
             System.out.println(circlePlayer.getRotationFromCenter());
         }
     }
@@ -148,28 +152,39 @@ public class GameTest extends ApplicationAdapter {
         cam.up.set(0, -1, 0);
         cam.position.set(circlePlayer.getCenterX(), circlePlayer.getCenterY(), 0);
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
-        cam.zoom = 0.03f;
+        //cam.zoom = ((40*15)/WORLD_SIZE);
+        cam.zoom=(0.07f);
+        //cam.zoom = 0.03f;
     }
 
-    private void followCamera(){
+    private void centerCameraOnPlayerGround(){
         Vector2 camVec = Commons.vec3to2(cam.position);
-        Vector2 diff =camVec.cpy().sub(new Vector2(circlePlayer.getCenterX(),circlePlayer.getCenterY()));
-        float lenght = diff.len();
-        if(lenght > 0){
-            if(lenght<CAM_FOLLOW_MAX_DIST){
-                //camVec.add(diff.)
-            }
-            else{
+        Vector2 planetToPlayer = circlePlayer.planetToPlayer();
+        Vector2 playerCenter = circlePlayer.getCenterVector();
 
-            }
-        }
+        Vector2 moveVec = planetToPlayer.cpy().rotate(180).nor();
+        moveVec.scl(circlePlayer.heigthFromGround());
+        playerCenter.add(moveVec);
+
+        cam.up.set(0, -1, 0);
+        cam.position.set(playerCenter.x,playerCenter.y,0);
+        cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
+        cam.zoom=(0.07f);
+    }
+
+    private void moveCameraByDeltaTime(Vector2 newPosition){
+        //Cur possition
+        Vector2 camVec = Commons.vec3to2(cam.position);
+        Vector2 oldToNew = camVec.cpy().sub(newPosition);
+        //oldToNew.scl
+
     }
 
     private void handleInputs(){
         handleUniversalInputs();
         if(cameraType == CameraType.PLAYER){
             //handlePlayerInputs();
-            cpc.handlePlayerInputs();
+            cpc.handlePlayerInputs(deltaTime);
             //circlePlayer.calcMoveVector(1,0,false);
         }
         else if(cameraType == CameraType.FREE){
@@ -210,7 +225,7 @@ public class GameTest extends ApplicationAdapter {
             centerCameraOnPlayer();
         }
 
-        cam.zoom = MathUtils.clamp(cam.zoom, 0.001f, WORLD_SIZE/cam.viewportWidth);
+        cam.zoom = MathUtils.clamp(cam.zoom, 0.000001f, WORLD_SIZE/cam.viewportWidth);
 
         float effectiveViewportWidth = cam.viewportWidth * cam.zoom;
         float effectiveViewportHeight = cam.viewportHeight * cam.zoom;
@@ -229,6 +244,7 @@ public class GameTest extends ApplicationAdapter {
                     cameraType = CameraType.FREE;
                 } else if (cameraType == CameraType.FREE) {
                     cameraType = CameraType.PLAYER;
+                    centerCameraOnPlayer();
                 }
             }
         }
