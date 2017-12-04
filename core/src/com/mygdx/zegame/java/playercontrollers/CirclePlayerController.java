@@ -2,57 +2,34 @@ package com.mygdx.zegame.java.playercontrollers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.mygdx.zegame.java.objects.moving.player.CirclePlayer;
+import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 
 public class CirclePlayerController implements PlayerController {
-    private float accMax, acc, deAcc;
-    private float speedLeft, speedRight;
-
-    boolean leftPressed, rightPressed;
-    boolean leftPressedLast, rightPressedLast;
-    boolean jump;
+    private boolean leftPressed, rightPressed;
+    private boolean jump;
 
     CirclePlayer circlePlayer;
 
 
     public CirclePlayerController(CirclePlayer cp) {
-        this.speedLeft = 0;
-        this.speedRight = 0;
         this.leftPressed = false;
         this.rightPressed = false;
-        this.leftPressedLast = false;
-        this.rightPressedLast = false;
+
         this.circlePlayer = cp;
-
-        this.accMax = 10;
-        this.acc = 1f;
-        this.deAcc = 1f;
-
     }
 
     @Override
-    public void handlePlayerInputs(float deltaTime) {
+    public void handlePlayerInputs() {
         this.jump = false;
-        if (Gdx.input.isKeyPressed(Input.Keys.A) && circlePlayer.isGrounded()) {
-            if (speedLeft < accMax) speedLeft += acc * deltaTime * 60;
+        this.leftPressed = false;
+        this.rightPressed = false;
 
-        } else if (speedLeft > 0 && circlePlayer.isGrounded()) {
-            if(speedLeft -deAcc>=0) {
-                speedLeft -= deAcc * deltaTime * 60;
-            } else {
-                speedLeft = 0;
-            }
+        if (Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)){
+            leftPressed = true;
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.D) && circlePlayer.isGrounded()) {
-            if (speedRight < accMax) speedRight += acc * deltaTime * 60;
-            rightPressedLast = true;
-        } else if (speedRight > 0 && circlePlayer.isGrounded()) {
-            if(speedRight -deAcc>=0) {
-                speedRight -= deAcc * deltaTime * 60;
-            } else {
-                speedRight = 0;
-            }
+        if (Gdx.input.isKeyPressed(Input.Keys.D) && !Gdx.input.isKeyPressed(Input.Keys.A)) {
+            rightPressed = true;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
@@ -61,17 +38,13 @@ public class CirclePlayerController implements PlayerController {
     }
 
     @Override
-    public void updatePlayer(){
-        circlePlayer.calcDistanceFromCenter();
+    public void updatePlayer(float deltaTime){
+        circlePlayer.calculateRotationFromCenter();
         circlePlayer.calcGravityForce();
         circlePlayer.calcUnitVectors();
-        circlePlayer.calcMoveVector(speedLeft, speedRight, jump);
-        circlePlayer.movePlayerByMoveVector();
+        circlePlayer.updatePosition(leftPressed, rightPressed, jump, deltaTime);
     }
 
-    public String toString(){
-        return "[CPController] L["+this.speedLeft +"] R["+this.speedRight +"] U["+this.speedRight +"] D[";
-    }
 
 }
 

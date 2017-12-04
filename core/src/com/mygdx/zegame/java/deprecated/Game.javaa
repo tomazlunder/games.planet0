@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.mygdx.zegame.java.deprecated.Player;
-import com.mygdx.zegame.java.objects.moving.player.CirclePlayer;
+import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.playercontrollers.CirclePlayerController;
 
 public class Game extends ApplicationAdapter {
