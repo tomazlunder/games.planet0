@@ -3,6 +3,7 @@ package com.mygdx.zegame.java;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -20,7 +21,7 @@ public class GameMain extends ApplicationAdapter {
 
     private final int DRAW_MODE = 0;
 
-    private final int UNIVERSE_SIZE = 5000;
+    private final int UNIVERSE_SIZE = 50000  ;
     private final int CAM_SPEED = 3;
     private final float CAM_ROT_SPEED = 0.5f;
 
@@ -109,7 +110,7 @@ public class GameMain extends ApplicationAdapter {
         cpc.updatePlayer(deltaTime);
         cam.update();
 
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if(drawMode == 0){drawSprite();}

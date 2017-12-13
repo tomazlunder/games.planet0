@@ -11,56 +11,81 @@ import com.mygdx.zegame.java.gameworld.Universe;
 import com.mygdx.zegame.java.gameworld.entities.Entity;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.gameworld.entities.nonmoving.CircleSpike;
+import com.mygdx.zegame.java.gameworld.entities.nonmoving.PickupShield;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GamemodeDemo {
-    public List<Entity> spikes;
-    public float healthPoints;
+    public List<Entity> spikes, shieldPickups;
     boolean gameOver;
     private CirclePlayer circlePlayer;
-    SpriteBatch hudBatch = new SpriteBatch();
+    SpriteBatch hudBatch;
     BitmapFont font;
 
+    Planet fp;
+
     Texture goTexture;
-
-
-
     public GamemodeDemo(CirclePlayer circlePlayer, Universe universe){
-
-        font = new BitmapFont();
-        font.setColor(Color.RED);
-        spikes = new ArrayList<Entity>();
         this.circlePlayer = circlePlayer;
 
-        Planet fp = universe.planets.get(0);
+        //HUD
+        hudBatch = new SpriteBatch();
+        font = new BitmapFont();
+        font.setColor(Color.RED);
+        goTexture = new Texture("gameover.jpg");
+
+        //Gamemode specific
+        gameOver = false;
+
+        this.circlePlayer = circlePlayer;
+
+        fp = universe.planets.get(0);
+
+        spikes = new ArrayList<Entity>();
         CircleSpike cs = new CircleSpike(fp.getX()-fp.getRadius()-5f,fp.getY(),10f,fp);
         spikes.add(cs);
-        fp.entities.add(cs);
+        fp.entities.add(cs);  //Drawn with wordld
 
-        gameOver = false;
-        goTexture = new Texture("gameover.jpg");
-        healthPoints = 100f;
+        shieldPickups = new ArrayList<Entity>();
+        PickupShield ps = new PickupShield(0, fp);
+        shieldPickups.add(ps);
+        fp.entities.add(ps);
+
     }
 
     public void update(float deltaTime){
-        for(Entity e : spikes){
+        //Shield pickup
+        ArrayList<Entity> toRemove = new ArrayList<Entity>();
+        for(Entity e : shieldPickups){
             if(e.getBaseCollision().isCollidingWith(circlePlayer.getBaseCollision())){
-                healthPoints-= 15 * deltaTime;
+                toRemove.add(e);
+                fp.entities.remove(e);
+                circlePlayer.gainShield();
+                System.out.println("[Gamemode]: Shield removed");
             }
         }
-        if(healthPoints <= 0){
+        shieldPickups.removeAll(toRemove);
+
+        //Collision with spikes
+        for(Entity e : spikes){
+            if(e.getBaseCollision().isCollidingWith(circlePlayer.getBaseCollision())){
+                circlePlayer.takeDamage(30*deltaTime);
+            }
+        }
+        if(circlePlayer.isDead()){
             gameOver = true;
         }
     }
 
     public void drawHud(Camera camera){
         hudBatch.begin();
-        font.draw(hudBatch, "Health: " + healthPoints, 20, Gdx.graphics.getHeight()-20);
-        font.draw(hudBatch, "FPS: "+Gdx.graphics.getFramesPerSecond(),20,Gdx.graphics.getHeight()-40);
-        font.draw(hudBatch, circlePlayer.toString(), 20, Gdx.graphics.getHeight()-60);
+        font.draw(hudBatch, "Health: " + circlePlayer.healthPoints, 20, Gdx.graphics.getHeight()-20);
+        font.draw(hudBatch, "Shield: " + circlePlayer.shieldPoints, 20, Gdx.graphics.getHeight()-40);
+        font.draw(hudBatch, "FPS: "+Gdx.graphics.getFramesPerSecond(),20,Gdx.graphics.getHeight()-60);
+        font.draw(hudBatch, circlePlayer.toString(), 20, Gdx.graphics.getHeight()-80);
 
         if(gameOver){
             hudBatch.draw(goTexture,0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

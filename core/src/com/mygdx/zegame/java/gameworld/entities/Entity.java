@@ -27,6 +27,15 @@ public abstract class Entity {
         calculateRotationFromCenter();
     }
 
+    public Entity(Vector2 center, float radius, Planet planet){
+        this.center = center;
+        this.collision = DEFAULT_COLLISION;
+        this.baseCollision = new CircleShape(center.x,center.y,radius);
+        this.nearestPlanet = planet;
+
+        calculateRotationFromCenter();
+    }
+
     /**
      * Getters and setters
      */

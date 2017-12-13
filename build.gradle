@@ -8,7 +8,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        
+        classpath 'com.badlogicgames.gdx:gdx-tools:1.5.4'
 
     }
 }
