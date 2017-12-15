@@ -14,8 +14,6 @@ public class FirstPlanet extends Planet {
     private Texture texLU, texLD, texRU, texRD;
     private Texture textureSky, textureYellow;
 
-    private Sprite spriteSky;
-
     public FirstPlanet(Universe universe) {
         super(universe,universe.getSize() / 2, universe.getSize() / 2, universe.getSize()/10);
 
@@ -31,7 +29,6 @@ public class FirstPlanet extends Planet {
 
         this.textureYellow = new Texture(Gdx.files.internal("1010yellow.png"));
         this.textureSky = new Texture("sprites/world/sky1.png");
-        spriteSky = new Sprite(textureSky, 8192, 8192);
     }
 
 
@@ -41,11 +38,6 @@ public class FirstPlanet extends Planet {
         spriteBatch.begin();
         float universeSize = universe.getSize();
         float planetRadius = this.getRadius();
-
-        //spriteSky.setPosition(circleShape.center.x - spriteSky.getWidth()/2, circleShape.center.y - spriteSky.getHeight()/2);
-        //spriteSky.setScale(planetRadius/250);
-        //spriteSky.setOrigin(spriteSky.getWidth()/2, spriteSky.getHeight()/2);
-        //spriteSky.draw(spriteBatch);
 
         spriteBatch.draw(textureSky, circleShape.center.x - 2f*planetRadius, circleShape.center.y - 2f*planetRadius, 4*planetRadius, 4*planetRadius);
 
