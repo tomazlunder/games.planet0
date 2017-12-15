@@ -21,7 +21,7 @@ public class GameMain extends ApplicationAdapter {
 
     private final int DRAW_MODE = 0;
 
-    private final int UNIVERSE_SIZE = 50000  ;
+    private final int UNIVERSE_SIZE = 50000;
     private final int CAM_SPEED = 3;
     private final float CAM_ROT_SPEED = 0.5f;
 
@@ -110,15 +110,15 @@ public class GameMain extends ApplicationAdapter {
         cpc.updatePlayer(deltaTime);
         cam.update();
 
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if(drawMode == 0){drawSprite();}
         if(drawMode == 1){drawSimple();}
 
         if(cameraType == CameraType.PLAYER) {
-            centerCameraOnPlayer();
-            //cameraFollowSmooth();
+            //centerCameraOnPlayer();
+            cameraFollowSmooth();
         }
 
         /*
@@ -130,7 +130,7 @@ public class GameMain extends ApplicationAdapter {
         }
 
         gamemodeDemo.update(deltaTime);
-        gamemodeDemo.drawHud(cam);
+        //gamemodeDemo.drawHud(cam);
     }
 
 
@@ -186,6 +186,19 @@ public class GameMain extends ApplicationAdapter {
 
         cam.position.x+= newVec.x;
         cam.position.y+= newVec.y;
+
+        //cam vec repurused to increase camera heigh from ground
+        camVec.x = cam.position.x;
+        camVec.y = cam.position.y;
+
+        Vector2 planetVec = circlePlayer.getNearestPlanet().getPosition();
+        camVec.x -= planetVec.x;
+        camVec.y -= planetVec.y;
+        camVec.setLength(circlePlayer.getRadius() * 2.5f);
+
+        cam.position.x+= camVec.x;
+        cam.position.y+= camVec.y;
+
 
         cam.up.set(0, -1, 0);
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);

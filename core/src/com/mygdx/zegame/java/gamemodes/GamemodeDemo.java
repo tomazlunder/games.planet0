@@ -3,23 +3,21 @@ package com.mygdx.zegame.java.gamemodes;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.zegame.java.gameworld.Universe;
 import com.mygdx.zegame.java.gameworld.entities.Entity;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
-import com.mygdx.zegame.java.gameworld.entities.nonmoving.CircleSpike;
+import com.mygdx.zegame.java.gameworld.entities.nonmoving.CircleFire;
 import com.mygdx.zegame.java.gameworld.entities.nonmoving.PickupShield;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GamemodeDemo {
-    public List<Entity> spikes, shieldPickups;
+    public List<Entity> fires, shieldPickups;
     boolean gameOver;
     private CirclePlayer circlePlayer;
     SpriteBatch hudBatch;
@@ -44,16 +42,15 @@ public class GamemodeDemo {
 
         fp = universe.planets.get(0);
 
-        spikes = new ArrayList<Entity>();
-        CircleSpike cs = new CircleSpike(fp.getX()-fp.getRadius()-5f,fp.getY(),10f,fp);
-        spikes.add(cs);
+        fires = new ArrayList<Entity>();
+        CircleFire cs = new CircleFire(fp.getX()-fp.getRadius()-5f,fp.getY(),10f,fp);
+        fires.add(cs);
         fp.entities.add(cs);  //Drawn with wordld
 
         shieldPickups = new ArrayList<Entity>();
         PickupShield ps = new PickupShield(0, fp);
         shieldPickups.add(ps);
         fp.entities.add(ps);
-
     }
 
     public void update(float deltaTime){
@@ -70,7 +67,7 @@ public class GamemodeDemo {
         shieldPickups.removeAll(toRemove);
 
         //Collision with spikes
-        for(Entity e : spikes){
+        for(Entity e : fires){
             if(e.getBaseCollision().isCollidingWith(circlePlayer.getBaseCollision())){
                 circlePlayer.takeDamage(30*deltaTime);
             }

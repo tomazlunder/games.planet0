@@ -14,52 +14,54 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CirclePlayer extends MovingEntity {
-    private float GROUNDED_ERROR = 0.05f;
+    //Player physics
     private float DEFAULT_MAX_HORIZONTAL_SPEED = 6f;
     private float DEFAULT_MAX_SPEED = 15;
-    private float DEFAULT_JUMP_ACC = 2.5f;
+    private float DEFAULT_JUMP_ACC = 2.7f;
     private float DEFAULT_MAX_ACC = 2;
     private float DEFAULT_JUMP_TIMEOUT = 0.5f;
     private float DEFAULT_ACC_STEP = DEFAULT_MAX_ACC/10;
     private float DEFAULT_DEACC_STEP = DEFAULT_MAX_SPEED/2;
     private float SPEED_FACTOR = 60;
-    private float DEFAULT_HEALTH = 100f;
-    private float DEFAULT_SHIELD = 0;
-
-    private float DEFAULT_GRAVITY = 0.4f;
+    private float DEFAULT_GRAVITY = 0.38f;
 
     private boolean inJump;
-
-    private Texture texture;
-    private Sprite sprite;
-    private float radius;
-    private float airtime;
     private float jumpTimeout;
-    private int testTick;
+    private float airtime;
+
+    //Player health
+    private float DEFAULT_HEALTH = 100f;
+    private float DEFAULT_SHIELD = 0;
     public float healthPoints, shieldPoints;
 
+    //Player animation
     private int currentFrame;
     private TextureAtlas ta;
     private TextureRegion trBody, trLegs, trFace;
     private Sprite spriteBody, spriteLegs, spriteFace;
+    private Sprite spriteGun;
 
-    String LEG_DEFAULT = "legs_idle";
+    String LEG_DEFAULT = "legs_idle0";
+    String BODY_DEFAULT = "body0";
     String LEG_JUMP = "legs_jump";
     String FACE_IDLE = "face_idle";
     String FACE_LEFT = "face_left";
     String FACE_JUMP = "face_jump";
 
-    List<String> LEG_RUN_ANIMATION = Arrays.asList("legs_run_left_0","legs_run_left_2","legs_run_left_4",
-                                          "legs_run_left_6","legs_run_left_8","legs_run_left_10",
-                                          "legs_run_left_12","legs_run_left_14", "legs_run_left_16",
-                                          "legs_run_left_18");
+    Animation<TextureRegion> bodyAnimation;
     Animation<TextureRegion> runAnimation;
-    float elapsedTime;
 
+    private float elapsedTime;
     private float movingDirection;
 
 
-    float run_pointer = 0;
+    List<String> BODY_ANIMATION = Arrays.asList("body0", "body1", "body2");
+    List<String> LEG_RUN_ANIMATION = Arrays.asList("legs_run_left0","legs_run_left2","legs_run_left4",
+            "legs_run_left6","legs_run_left8","legs_run_left10",
+            "legs_run_left12","legs_run_left14", "legs_run_left16",
+            "legs_run_left18");
+
+
 
     public CirclePlayer(float radius, Planet planet, String path){
         super(planet.getX(),planet.getY()+planet.getRadius()+radius,radius,planet);
@@ -69,19 +71,17 @@ public class CirclePlayer extends MovingEntity {
         this.maxAcceleration = DEFAULT_MAX_ACC;
         this.accelerationStep = DEFAULT_ACC_STEP;
         this.jumpTimeout = DEFAULT_JUMP_TIMEOUT;
+        this.airtime = 0;
         this.inJump = false;
 
         this.healthPoints = DEFAULT_HEALTH;
         this.shieldPoints = DEFAULT_SHIELD;
-        this.texture = new Texture(path);
-        //sprite = new Sprite(texture,500,1000);
-        testTick=0;
 
-        ta = new TextureAtlas("spritesheets/player0.atlas");
+        ta = new TextureAtlas("spritesheets/ss_player1.atlas");
         trFace = ta.findRegion(FACE_IDLE);
         spriteFace = new Sprite(trFace);
 
-        trBody = ta.findRegion("body1");
+        trBody = ta.findRegion(BODY_DEFAULT);
         spriteBody = new Sprite(trBody);
 
         trLegs = ta.findRegion(LEG_DEFAULT);
@@ -91,11 +91,20 @@ public class CirclePlayer extends MovingEntity {
         for(int i = 0; i < LEG_RUN_ANIMATION.size(); i++){
             trs[i] = (ta.findRegion(LEG_RUN_ANIMATION.get(i)));
         }
-        runAnimation = new Animation(1f/2.25f,trs);
+        runAnimation = new Animation(1f/4.5f,trs);
+
+        trs = new TextureRegion[BODY_ANIMATION.size()];
+        for(int i = 0; i < BODY_ANIMATION.size(); i++){
+            trs[i] = (ta.findRegion(BODY_ANIMATION.get(i)));
+        }
+        bodyAnimation = new Animation<TextureRegion>(1f/1f, trs);
+
+        spriteGun = new Sprite(new Texture("sprites/weapons/gun.png"),256,256);
 
         elapsedTime = 0;
     }
 
+    //HEALTH RELATED
     public void takeDamage(float damage){
         if(this.shieldPoints > 0){
             shieldPoints-= damage;
@@ -113,29 +122,34 @@ public class CirclePlayer extends MovingEntity {
         return healthPoints <= 0;
     }
 
+    //DRAW WITH SPRITES
     public void draw(SpriteBatch spriteBatch){
-        /*
-        testTick++;
         spriteBatch.begin();
 
-        sprite.setPosition(center.x-sprite.getWidth()/2,center.y-sprite.getHeight()/2);
-        sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
-        sprite.setScale(radius/sprite.getWidth());
-        sprite.setRotation(rotationFromCenter-90);
+        if(movingDirection == -1){
+            drawGun(spriteBatch);
+            drawBody(spriteBatch);
+            drawLegsAndFace(spriteBatch);
+        } else {
+            drawBody(spriteBatch);
+            drawLegsAndFace(spriteBatch);
+            drawGun(spriteBatch);
+        }
 
-        sprite.draw(spriteBatch);
         spriteBatch.end();
-        */
-        testTick++;
-        spriteBatch.begin();
-        spriteBody.setPosition(center.x-spriteBody.getWidth()/2,center.y-spriteBody.getHeight()/2);
-        spriteBody.setOrigin(spriteBody.getWidth()/2, spriteBody.getHeight()/2);
-        spriteBody.setScale(radius*2/spriteBody.getWidth());
-        spriteBody.setRotation(rotationFromCenter-90);
-        spriteBody.draw(spriteBatch);
+    }
 
-        //spriteBatch.draw(runAnimation.getKeyFrame(elapsedTime,true),0,0);
+    public void drawGun(SpriteBatch spriteBatch){
+        Vector2 gunPosition = getGunPosition();
+        spriteGun.setPosition(gunPosition.x, gunPosition.y);
+        spriteGun.setOrigin(spriteGun.getWidth()/2, spriteGun.getHeight()/2);
+        spriteGun.setScale(radius*2/spriteGun.getWidth());
+        spriteGun.setRotation(rotationFromCenter-90);
 
+        spriteGun.draw(spriteBatch);
+    }
+
+    public void drawLegsAndFace(SpriteBatch spriteBatch){
         if(trLegs.isFlipX()){
             trLegs.flip(true,false);
         }
@@ -174,11 +188,21 @@ public class CirclePlayer extends MovingEntity {
         spriteFace.setRotation(rotationFromCenter-90);
 
         spriteFace.draw(spriteBatch);
-
-
-        spriteBatch.end();
     }
 
+    public void drawBody(SpriteBatch spriteBatch){
+        //trBody = ta.findRegion(BODY_ANIMATION.get(currentFrame%BODY_ANIMATION.size()));
+        trBody = ta.findRegion("body1");
+
+        spriteBody.setRegion(trBody);
+        spriteBody.setPosition(center.x-spriteBody.getWidth()/2,center.y-spriteBody.getHeight()/2);
+        spriteBody.setOrigin(spriteBody.getWidth()/2, spriteBody.getHeight()/2);
+        spriteBody.setScale(radius*2/spriteBody.getWidth());
+        spriteBody.setRotation(rotationFromCenter-90);
+        spriteBody.draw(spriteBatch);
+    }
+
+    //DRAW SIMPLE
     public void draw(ShapeRenderer shapeRenderer){
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.GREEN);
@@ -187,14 +211,7 @@ public class CirclePlayer extends MovingEntity {
         shapeRenderer.end();
     }
 
-    public boolean isGrounded(){
-        return (heigthFromGround() < GROUNDED_ERROR);
-    }
-
-    public float heigthFromGround(){
-        return (distanceFromCenter()-(nearestPlanet.getRadius()+radius));
-    }
-
+    //UPDATE
     public void updatePosition(boolean leftPressed, boolean rightPressed, boolean jumped, float deltaTime){
         elapsedTime+= deltaTime;
         //SETTING VARIABLES FOR ANIMATION
@@ -287,10 +304,7 @@ public class CirclePlayer extends MovingEntity {
         this.baseCollision.updatePosition(center);
     }
 
-
-
-
-
+    //UTILITY
     private void correctForPlanet(){
         float distance = distanceFromCenter();
         float diff = (nearestPlanet.getRadius() + this.radius) - distance;
@@ -302,6 +316,18 @@ public class CirclePlayer extends MovingEntity {
         if(isGrounded()){airtime=0;}
     }
 
+    private Vector2 getGunPosition(){
+        Vector2 diff = new Vector2(0,0);
+        if(movingDirection == 0 || inJump){
+            diff = this.leftUnit.cpy().scl(10f);
+        }
+
+        Vector2 result = this.center.cpy().add(diff);
+        result.x-= spriteGun.getWidth()/2;
+        result.y-= spriteGun.getHeight()/2;
+
+        return result;
+    }
 
     public String toString(){
         return "[CirclePlayer] POS["+this.center.toString()+"] SPEED "+this.speed.len()+" ["+this.speed.toString()+"] ACC "+this.acceleration.len()+" ["+ this.acceleration.toString() +"]";

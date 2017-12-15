@@ -9,7 +9,11 @@ import com.mygdx.zegame.java.physics.collision.shapes.CollisionShape;
 
 public abstract class Entity {
     protected boolean DEFAULT_COLLISION = true;
+    private float GROUNDED_ERROR = 0.05f;
+
+
     protected Vector2 center;
+    protected float radius;
 
     protected boolean collision;
     protected CircleShape baseCollision;
@@ -20,6 +24,7 @@ public abstract class Entity {
 
     public Entity(float x, float y, float radius, Planet planet){
         this.center = new Vector2(x,y);
+        this.radius = radius;
         this.collision = DEFAULT_COLLISION;
         this.baseCollision = new CircleShape(x,y,radius);
         this.nearestPlanet = planet;
@@ -41,19 +46,13 @@ public abstract class Entity {
      */
     public boolean getCollision(){return this.collision;}
     public void setCollision(boolean c){this.collision = c;}
-    public float getX(){
-        return center.x;
-    }
-    public float getY(){
-        return center.y;
-    }
+    public float getX(){ return center.x; }
+    public float getY(){ return center.y; }
+    public float getRadius() {return radius;}
     public Vector2 getPosition(){return center.cpy();}
-    public void setX(float x){
-        this.center.x = x;
-    }
-    public void setY(float y){
-        this.center.y = y;
-    }
+    public void setX(float x){ this.center.x = x; }
+    public void setY(float y){ this.center.y = y; }
+    public void setRadius(float radius) {this.radius = radius; }
     public void setPosition(Vector2 c){this.center = c;}
     public void setNearestPlanet(Planet p){ nearestPlanet = p; }
     public Planet getNearestPlanet(){ return nearestPlanet; }
@@ -82,7 +81,18 @@ public abstract class Entity {
         return center.dst(nearestPlanet.getPosition());
     }
 
+    public float heigthFromGround(){
+        return (distanceFromCenter()-(nearestPlanet.getRadius()+radius));
+    }
 
+    public boolean isGrounded(){
+        return (heigthFromGround() < GROUNDED_ERROR);
+    }
+
+
+    /**
+     * Basic functions
+     */
     public abstract void draw(SpriteBatch spriteBatch);
     public abstract void draw(ShapeRenderer shapeRenderer);
 }
