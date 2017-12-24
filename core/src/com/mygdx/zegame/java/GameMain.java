@@ -3,19 +3,21 @@ package com.mygdx.zegame.java;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.mygdx.zegame.java.commons.Commons;
 import com.mygdx.zegame.java.gamemodes.GamemodeDemo;
 import com.mygdx.zegame.java.gameworld.Universe;
 import com.mygdx.zegame.java.gameworld.planets.FirstPlanet;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 import com.mygdx.zegame.java.playercontrollers.CirclePlayerController;
+import com.mygdx.zegame.java.sound.SoundSingleton;
 
 public class GameMain extends ApplicationAdapter {
 
@@ -58,6 +60,11 @@ public class GameMain extends ApplicationAdapter {
 
     private GamemodeDemo gamemodeDemo;
 
+    /*
+     * SOUND
+     */
+    private SoundSingleton sound;
+
     /**
      * Called when the game launches. Initializes main gameworld.
      */
@@ -79,7 +86,7 @@ public class GameMain extends ApplicationAdapter {
         universe = new Universe(UNIVERSE_SIZE);
         Planet firstPlanet = new FirstPlanet(universe);
         universe.planets.add(firstPlanet);
-        circlePlayer = new CirclePlayer(20,firstPlanet,"player.png");
+        circlePlayer = new CirclePlayer(20,firstPlanet,cam);
         cpc = new CirclePlayerController(circlePlayer);
 
         //Init camera
@@ -90,6 +97,10 @@ public class GameMain extends ApplicationAdapter {
         cam.update();
 
         gamemodeDemo = new GamemodeDemo(circlePlayer, universe);
+
+        sound = SoundSingleton.getInstance();
+        long id = sound.mainLoop.loop();
+
     }
 
     private void initSpriteDraw(){
@@ -211,7 +222,12 @@ public class GameMain extends ApplicationAdapter {
         handleUniversalInputs();
         if(cameraType == CameraType.PLAYER){
             //handlePlayerInputs();
-            cpc.handlePlayerInputs();
+            Vector3 cursorPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            Vector3 aimingAt = cam.unproject(cursorPos);
+            circlePlayer.aimingAt = aimingAt;
+
+            cpc.handlePlayerInputs(cam);
+
             //circlePlayer.calcNewPosition(1,0,false);
         }
         else if(cameraType == CameraType.FREE){
@@ -221,7 +237,7 @@ public class GameMain extends ApplicationAdapter {
 
     private void handleFreeInputs() {
         if(Gdx.input.isTouched()){
-            System.out.printf("Clicked: ["+Gdx.input.getX()+", "+Gdx.input.getY()+"]\n");
+            System.out.printf("Clicked: ["+Gdx.input.getX()+", "+Gdx.input.getY()+"] \n");
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.R)) {

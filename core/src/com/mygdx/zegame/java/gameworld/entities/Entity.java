@@ -4,10 +4,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
+import com.mygdx.zegame.java.physics.collision.BasicCollision;
 import com.mygdx.zegame.java.physics.collision.shapes.CircleShape;
 import com.mygdx.zegame.java.physics.collision.shapes.CollisionShape;
 
-public abstract class Entity {
+public abstract class Entity implements BasicCollision{
     protected boolean DEFAULT_COLLISION = true;
     private float GROUNDED_ERROR = 0.05f;
 
@@ -59,6 +60,11 @@ public abstract class Entity {
 
     public float getRotationFromCenter() { return this.rotationFromCenter; }
 
+    @Override
+    public CollisionShape getCollisionShape() {
+        return this.baseCollision;
+    }
+
     public CollisionShape getBaseCollision(){return this.baseCollision;}
 
     public void calculateRotationFromCenter(){
@@ -93,6 +99,8 @@ public abstract class Entity {
     /**
      * Basic functions
      */
+    public void update(){};
+
     public abstract void draw(SpriteBatch spriteBatch);
     public abstract void draw(ShapeRenderer shapeRenderer);
 }

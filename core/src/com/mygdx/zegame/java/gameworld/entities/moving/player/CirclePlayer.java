@@ -1,15 +1,16 @@
 package com.mygdx.zegame.java.gameworld.entities.moving.player;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.math.Vector3;
+import com.mygdx.zegame.java.commons.Commons;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 import com.mygdx.zegame.java.gameworld.entities.MovingEntity;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,6 +26,8 @@ public class CirclePlayer extends MovingEntity {
     private float SPEED_FACTOR = 60;
     private float DEFAULT_GRAVITY = 0.38f;
 
+    public Vector3 aimingAt;
+
     private boolean inJump;
     private float jumpTimeout;
     private float airtime;
@@ -35,6 +38,8 @@ public class CirclePlayer extends MovingEntity {
     public float healthPoints, shieldPoints;
 
     //Player animation
+    private OrthographicCamera camera;
+
     private int currentFrame;
     private TextureAtlas ta;
     private TextureRegion trBody, trLegs, trFace;
@@ -54,7 +59,6 @@ public class CirclePlayer extends MovingEntity {
     private float elapsedTime;
     private float movingDirection;
 
-
     List<String> BODY_ANIMATION = Arrays.asList("body0", "body1", "body2");
     List<String> LEG_RUN_ANIMATION = Arrays.asList("legs_run_left0","legs_run_left2","legs_run_left4",
             "legs_run_left6","legs_run_left8","legs_run_left10",
@@ -63,7 +67,7 @@ public class CirclePlayer extends MovingEntity {
 
 
 
-    public CirclePlayer(float radius, Planet planet, String path){
+    public CirclePlayer(float radius, Planet planet, OrthographicCamera camera){
         super(planet.getX(),planet.getY()+planet.getRadius()+radius,radius,planet);
         this.center = new Vector2(planet.getX(), planet.getY()+planet.getRadius()+radius);
         this.radius = radius;
@@ -76,6 +80,8 @@ public class CirclePlayer extends MovingEntity {
 
         this.healthPoints = DEFAULT_HEALTH;
         this.shieldPoints = DEFAULT_SHIELD;
+
+        this.camera = camera;
 
         ta = new TextureAtlas("spritesheets/ss_player1.atlas");
         trFace = ta.findRegion(FACE_IDLE);
@@ -125,6 +131,7 @@ public class CirclePlayer extends MovingEntity {
     //DRAW WITH SPRITES
     public void draw(SpriteBatch spriteBatch){
         spriteBatch.begin();
+        drawAiming(spriteBatch);
 
         if(movingDirection == -1){
             drawGun(spriteBatch);
@@ -140,13 +147,24 @@ public class CirclePlayer extends MovingEntity {
     }
 
     public void drawGun(SpriteBatch spriteBatch){
-        Vector2 gunPosition = getGunPosition();
+        Vector2 gunPosition = getGunSpritePosition();
         spriteGun.setPosition(gunPosition.x, gunPosition.y);
         spriteGun.setOrigin(spriteGun.getWidth()/2, spriteGun.getHeight()/2);
         spriteGun.setScale(radius*2/spriteGun.getWidth());
-        spriteGun.setRotation(rotationFromCenter-90);
+        //spriteGun.setRotation(rotationFromCenter-90);
+        spriteGun.setRotation(0);
+
+        if(aimingAt != null) {
+            spriteGun.rotate(Commons.angleBetweenPoints(newPosition, Commons.vec3to2(aimingAt)));
+        }
 
         spriteGun.draw(spriteBatch);
+    }
+
+    private void drawAiming(SpriteBatch spriteBatch){
+        if(aimingAt != null) {
+            //Commons.drawLine(spriteBatch, getGunCenter(), Commons.vec3to2(aimingAt));
+        }
     }
 
     public void drawLegsAndFace(SpriteBatch spriteBatch){
@@ -200,6 +218,7 @@ public class CirclePlayer extends MovingEntity {
         spriteBody.setScale(radius*2/spriteBody.getWidth());
         spriteBody.setRotation(rotationFromCenter-90);
         spriteBody.draw(spriteBatch);
+
     }
 
     //DRAW SIMPLE
@@ -316,13 +335,18 @@ public class CirclePlayer extends MovingEntity {
         if(isGrounded()){airtime=0;}
     }
 
-    private Vector2 getGunPosition(){
+    private Vector2 getGunCenter(){
         Vector2 diff = new Vector2(0,0);
+
         if(movingDirection == 0 || inJump){
             diff = this.leftUnit.cpy().scl(10f);
         }
 
-        Vector2 result = this.center.cpy().add(diff);
+        return  this.center.cpy().add(diff);
+    }
+
+    private Vector2 getGunSpritePosition(){
+        Vector2 result = getGunCenter();
         result.x-= spriteGun.getWidth()/2;
         result.y-= spriteGun.getHeight()/2;
 

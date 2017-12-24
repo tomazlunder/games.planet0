@@ -23,6 +23,8 @@ public class CircleFire extends Entity{
         sprite = new Sprite(texture,100,100);
     }
 
+
+
     @Override
     public void draw(SpriteBatch spriteBatch) {
         spriteBatch.begin();

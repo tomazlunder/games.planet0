@@ -2,6 +2,8 @@ package com.mygdx.zegame.java.playercontrollers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector3;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 
 public class CirclePlayerController implements PlayerController {
@@ -19,7 +21,7 @@ public class CirclePlayerController implements PlayerController {
     }
 
     @Override
-    public void handlePlayerInputs() {
+    public void handlePlayerInputs(OrthographicCamera camera) {
         this.jump = false;
         this.leftPressed = false;
         this.rightPressed = false;
@@ -35,6 +37,7 @@ public class CirclePlayerController implements PlayerController {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             this.jump = true;
         }
+
     }
 
     @Override
