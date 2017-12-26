@@ -88,7 +88,7 @@ public class GameScreen implements Screen {
 
         //Init camera
         camChangeTimeout = 0;
-        cameraType = CameraType.FREE;
+        cameraType = CameraType.PLAYER;
         cam = new OrthographicCamera(UNIVERSE_SIZE, UNIVERSE_SIZE * (h / w));
         cam.position.set(cam.viewportWidth, cam.viewportHeight, 0);
         cam.update();
@@ -143,20 +143,18 @@ public class GameScreen implements Screen {
     }
 
     public void drawSimple() {
-        //shapeRenderer.setProjectionMatrix(cam.combined);
+        game.shapeRenderer.setProjectionMatrix(cam.combined);
 
-        //universe.draw(shapeRenderer);
-        //circlePlayer.draw(shapeRenderer);
+        universe.draw(game.shapeRenderer);
+        circlePlayer.draw(game.shapeRenderer);
     }
 
     public void switchDrawMode() {
         if (drawMode == 0) {
-            game.spriteBatch.dispose();
-            //initSimpleDraw();
+            //game.spriteBatch.dispose();
             drawMode = 1;
         } else if (drawMode == 1) {
-            //shapeRenderer.dispose();
-            //initSpriteDraw();
+            //game.shapeRenderer.dispose();
             drawMode = 0;
         }
     }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.zegame.java.GameClass;
+import com.mygdx.zegame.java.sound.SoundSingleton;
 
 import java.util.Arrays;
 
@@ -26,9 +27,8 @@ public class MainMenuScreen implements Screen {
     Texture texExit = new Texture("menus/main/exit_btn.png");
     Texture texExitSel = new Texture("menus/main/exit_btn_sel.png");
 
-    //Texture texLoading = new Texture("menus/main/loading.png");
-
-    Texture[] texArray;
+    //FOR EASY DISPOSAL
+    final Texture[] texArray = new Texture[]{texPlay, texPlaySel, texScore, texScoreSel, texSettings, texSettingsSel, texExit, texExitSel, texture_bg};
 
     float fromLeftEdge;
 
@@ -44,22 +44,28 @@ public class MainMenuScreen implements Screen {
 
     int skip_for_loading;
 
+    long loopId;
+
 
     GameClass game;
 
     public MainMenuScreen(GameClass game) {
-        System.out.println("Loading main menu...");
-        this.buttonsActive = new boolean[]{false, false, false, false};
         this.game = game;
+    }
+
+    @Override
+    public void show() {
+        this.buttonsActive = new boolean[]{false, false, false, false};
+
         this.screenH = Gdx.graphics.getHeight();
         this.screenW = Gdx.graphics.getWidth();
 
+        //Button settings
         this.fromLeftEdge = 5 * screenW / 100;
         this.buttonH = screenH / 6.75f;
         this.buttonW = screenW / 4;
 
-        this.texArray = new Texture[]{texPlay, texPlaySel, texScore, texScoreSel,
-                texSettings, texSettingsSel, texExit, texExitSel, texture_bg};
+        //To Dispose
         this.clickTo = CLICK_TO;
 
         this.camera = new OrthographicCamera(screenW, screenH);
@@ -71,11 +77,8 @@ public class MainMenuScreen implements Screen {
         game.spriteBatch.setProjectionMatrix(camera.combined);
 
         this.skip_for_loading = 2;
-    }
 
-    @Override
-    public void show() {
-
+        loopId = SoundSingleton.getInstance().arcade.loop();
     }
 
     @Override
@@ -146,12 +149,14 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void hide() {
-
+        SoundSingleton.getInstance().arcade.stop(loopId);
     }
 
     @Override
     public void dispose() {
-
+        for(Texture t : texArray){
+            t.dispose();
+        }
     }
 
     private void handleInputs(float deltaTime) {
@@ -165,13 +170,12 @@ public class MainMenuScreen implements Screen {
             playClicked();
         }
 
+        boolean[] last = buttonsActive.clone();
         Arrays.fill(buttonsActive, false);
+
         float x = Gdx.input.getX();
         float y = Gdx.input.getY();
-
         y = screenH - y;
-
-        //System.out.println("x: "+x+ "| y:"+y);
 
         if (x >= fromLeftEdge && x < fromLeftEdge + buttonW) {
             if (y > 65 * screenH / 100 && y < 65 * screenH / 100 + buttonH) {
@@ -185,6 +189,17 @@ public class MainMenuScreen implements Screen {
             }
         }
 
+        //Mouse over button sound
+        if(!Arrays.equals(buttonsActive,last)){
+            boolean atLeastOneTrue = false;
+            for(boolean b : buttonsActive){
+                if(b) atLeastOneTrue = true;
+            }
+            if(atLeastOneTrue){
+                SoundSingleton.getInstance().menuSelect.play();
+            }
+        }
+
         if (clickTo > 0) {
             clickTo -= deltaTime;
         }
@@ -193,6 +208,9 @@ public class MainMenuScreen implements Screen {
             clickTo = CLICK_TO;
             if (buttonsActive[0]) {
                 playClicked();
+            }
+            if (buttonsActive[3]) {
+                exitClicked();
             }
         }
 
@@ -211,6 +229,6 @@ public class MainMenuScreen implements Screen {
     }
 
     private void exitClicked() {
-
+        Gdx.app.exit();
     }
 }

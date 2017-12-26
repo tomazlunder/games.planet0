@@ -10,11 +10,16 @@ public class SoundSingleton {
 
     public Sound jump;
     public Sound shoot;
+    public Sound arcade;
+    public Sound menuSelect;
 
     protected SoundSingleton(){
         mainLoop = Gdx.audio.newSound(Gdx.files.internal("audio/main_loop.mp3"));
         jump = Gdx.audio.newSound(Gdx.files.internal("audio/jump.wav"));
         shoot = Gdx.audio.newSound(Gdx.files.internal("audio/shot.wav"));
+
+        arcade = Gdx.audio.newSound(Gdx.files.internal("audio/arcade_loop.wav"));
+        menuSelect = Gdx.audio.newSound(Gdx.files.internal("audio/menu_select.wav"));
     }
 
     public static SoundSingleton getInstance(){
