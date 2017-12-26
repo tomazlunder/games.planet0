@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.mygdx.zegame.java.commons.Commons;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 import com.mygdx.zegame.java.gameworld.entities.MovingEntity;
+import com.mygdx.zegame.java.sound.SoundSingleton;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +66,7 @@ public class CirclePlayer extends MovingEntity {
             "legs_run_left12","legs_run_left14", "legs_run_left16",
             "legs_run_left18");
 
+    SoundSingleton sound;
 
 
     public CirclePlayer(float radius, Planet planet, OrthographicCamera camera){
@@ -80,8 +82,6 @@ public class CirclePlayer extends MovingEntity {
 
         this.healthPoints = DEFAULT_HEALTH;
         this.shieldPoints = DEFAULT_SHIELD;
-
-        this.camera = camera;
 
         ta = new TextureAtlas("spritesheets/ss_player1.atlas");
         trFace = ta.findRegion(FACE_IDLE);
@@ -108,6 +108,8 @@ public class CirclePlayer extends MovingEntity {
         spriteGun = new Sprite(new Texture("sprites/weapons/gun.png"),256,256);
 
         elapsedTime = 0;
+
+        sound = SoundSingleton.getInstance();
     }
 
     //HEALTH RELATED
@@ -264,6 +266,7 @@ public class CirclePlayer extends MovingEntity {
 
         //PLAYER JUMPS
         if(jumped && isGrounded() &&!inJump && jumpTimeout <= 0) {
+            sound.jump.play();
             jumpTimeout = DEFAULT_JUMP_TIMEOUT;
             airtime = 0;
             inJump = true;

@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
+@Deprecated
 public class SimpleObstacle {
     float objectWidth = 1;
     float objectHeigth = 1.5f;

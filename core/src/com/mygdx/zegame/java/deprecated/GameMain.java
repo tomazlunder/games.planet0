@@ -1,6 +1,6 @@
-package com.mygdx.zegame.java;
+package com.mygdx.zegame.java.deprecated;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.mygdx.zegame.java.CameraType;
 import com.mygdx.zegame.java.commons.Commons;
 import com.mygdx.zegame.java.gamemodes.GamemodeDemo;
 import com.mygdx.zegame.java.gameworld.Universe;
@@ -17,9 +18,10 @@ import com.mygdx.zegame.java.gameworld.planets.FirstPlanet;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 import com.mygdx.zegame.java.playercontrollers.CirclePlayerController;
+import com.mygdx.zegame.java.screens.MainMenuScreen;
 import com.mygdx.zegame.java.sound.SoundSingleton;
-
-public class GameMain extends ApplicationAdapter {
+@Deprecated
+public class GameMain extends Game {
 
     private final int DRAW_MODE = 0;
 
@@ -35,7 +37,7 @@ public class GameMain extends ApplicationAdapter {
     private int drawMode;
     int drawModeSwitchTimeout;
     // Mode 0 - Sprites
-    private SpriteBatch spriteBatch;
+    public SpriteBatch spriteBatch;
     //Mode 1 - Shapes
     private ShapeRenderer shapeRenderer;
 
@@ -70,6 +72,7 @@ public class GameMain extends ApplicationAdapter {
      */
     @Override
     public void create () {
+        //this.setScreen(new MainMenuScreen(this));
         tick = 0;
         //TODO: Drawing controller
         drawMode = DRAW_MODE;
@@ -99,7 +102,8 @@ public class GameMain extends ApplicationAdapter {
         gamemodeDemo = new GamemodeDemo(circlePlayer, universe);
 
         sound = SoundSingleton.getInstance();
-        long id = sound.mainLoop.loop();
+
+        long id = sound.mainLoop.loop(0.1f);
 
     }
 
@@ -121,7 +125,8 @@ public class GameMain extends ApplicationAdapter {
         cpc.updatePlayer(deltaTime);
         cam.update();
 
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+
+        Gdx.gl.glClearColor(0, 1, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if(drawMode == 0){drawSprite();}
@@ -304,6 +309,10 @@ public class GameMain extends ApplicationAdapter {
             this.dispose();
             this.create();
         }
+    }
+
+    private SpriteBatch getSpriteBatch(){
+        return this.spriteBatch;
     }
 }
 

@@ -8,8 +8,13 @@ public class SoundSingleton {
 
     public Sound mainLoop;
 
+    public Sound jump;
+    public Sound shoot;
+
     protected SoundSingleton(){
         mainLoop = Gdx.audio.newSound(Gdx.files.internal("audio/main_loop.mp3"));
+        jump = Gdx.audio.newSound(Gdx.files.internal("audio/jump.wav"));
+        shoot = Gdx.audio.newSound(Gdx.files.internal("audio/shot.wav"));
     }
 
     public static SoundSingleton getInstance(){

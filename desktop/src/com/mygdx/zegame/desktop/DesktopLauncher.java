@@ -2,7 +2,7 @@ package com.mygdx.zegame.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.mygdx.zegame.java.GameMain;
+import com.mygdx.zegame.java.GameClass;
 
 
 public class DesktopLauncher  {
@@ -16,6 +16,6 @@ public class DesktopLauncher  {
 		config.height = 980;
 		config.resizable = true;
 
-		 app = new LwjglApplication(new GameMain(), config);
+		 app = new LwjglApplication(new GameClass(), config);
 	}
 }

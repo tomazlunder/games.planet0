@@ -5,12 +5,14 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
+import com.mygdx.zegame.java.sound.SoundSingleton;
 
 public class CirclePlayerController implements PlayerController {
     private boolean leftPressed, rightPressed;
     private boolean jump;
 
     CirclePlayer circlePlayer;
+
 
 
     public CirclePlayerController(CirclePlayer cp) {
