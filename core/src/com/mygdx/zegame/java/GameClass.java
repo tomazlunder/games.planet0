@@ -1,6 +1,8 @@
 package com.mygdx.zegame.java;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -28,6 +30,7 @@ public class GameClass extends Game {
 
     @Override
     public void render() {
+        handleAppUniversalInputs();
         super.render();
 
     }
@@ -39,6 +42,12 @@ public class GameClass extends Game {
         }
         if (spriteBatch != null) {
             spriteBatch.dispose();
+        }
+    }
+
+    public void handleAppUniversalInputs(){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+            Gdx.app.exit();
         }
     }
 }

@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.mygdx.zegame.java.CameraType;
 import com.mygdx.zegame.java.GameClass;
 import com.mygdx.zegame.java.commons.Commons;
+import com.mygdx.zegame.java.constants.Constants;
 import com.mygdx.zegame.java.gamemodes.GamemodeDemo;
 import com.mygdx.zegame.java.gameworld.Universe;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
@@ -22,47 +23,25 @@ import com.mygdx.zegame.java.sound.SoundSingleton;
 
 public class GameScreen implements Screen {
 
-    private final int DRAW_MODE = 0;
+    private GameClass game;
 
-    private final int UNIVERSE_SIZE = 50000;
-    private final int CAM_SPEED = 3;
-    private final float CAM_ROT_SPEED = 0.5f;
-
-    private final int DEFAULT_DRAW_SWITCH_TIMEOUT = 100;
-
-    /*
-     * DRAWING
-     */
+    //Drawing
     private int drawMode;
-    int drawModeSwitchTimeout;
 
-    /*
-     * CAMERA
-     */
+    //Camera
     private OrthographicCamera cam;
+    private CameraType cameraType;
 
-    CameraType cameraType;
-    int camChangeTimeout;
-
-
-    /*
-     * MAIN OBJECTS AND VARIABLES
-     */
+    //Main game objects
     private Universe universe;
-
     private CirclePlayer circlePlayer;
     private CirclePlayerController cpc;
-    private float deltaTime;
-    private int tick;
-
     private GamemodeDemo gamemodeDemo;
 
-    /*
-     * SOUND
-     */
-    private long mainloopId;
+    private int tick;
 
-    private GameClass game;
+    //Sounds
+    private long mainloopId;
 
     public GameScreen(GameClass game) {
         this.game = game;
@@ -71,36 +50,34 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         tick = 0;
-        drawMode = DRAW_MODE;
+        drawMode = Constants.DEFAULT_DRAW_MODE;
 
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
 
-        //Init drawing tool
-        drawModeSwitchTimeout = DEFAULT_DRAW_SWITCH_TIMEOUT;
-
-        //Create main gameworld
-        universe = new Universe(UNIVERSE_SIZE);
+        //Create gameworld
+        universe = new Universe(Constants.DEFAULT_UNIVERSE_SIZE);
         Planet firstPlanet = new FirstPlanet(universe);
         universe.planets.add(firstPlanet);
-        circlePlayer = new CirclePlayer(20, firstPlanet, cam);
+        circlePlayer = new CirclePlayer(Constants.DEFAULT_PLAYER_SIZE, firstPlanet, cam);
         cpc = new CirclePlayerController(circlePlayer);
 
         //Init camera
-        camChangeTimeout = 0;
         cameraType = CameraType.PLAYER;
-        cam = new OrthographicCamera(UNIVERSE_SIZE, UNIVERSE_SIZE * (h / w));
+        cam = new OrthographicCamera(Constants.DEFAULT_UNIVERSE_SIZE, Constants.DEFAULT_UNIVERSE_SIZE * (h / w));
         cam.position.set(cam.viewportWidth, cam.viewportHeight, 0);
         cam.update();
 
+        //Init gamemode
         gamemodeDemo = new GamemodeDemo(circlePlayer, universe);
 
+        //Init main sound track
         mainloopId = SoundSingleton.getInstance().mainLoop.loop(0.30f);
     }
 
     @Override
     public void render(float delta) {
-        deltaTime = Gdx.graphics.getDeltaTime();
+        float deltaTime = Gdx.graphics.getDeltaTime();
         tick++;
         handleInputs();
 
@@ -131,25 +108,25 @@ public class GameScreen implements Screen {
         }
 
         gamemodeDemo.update(deltaTime);
-        //gamemodeDemo.drawHud(cam);
+        gamemodeDemo.drawHud();
     }
 
 
-    public void drawSprite() {
+    private void drawSprite() {
         game.spriteBatch.setProjectionMatrix(cam.combined);
 
         universe.draw(game.spriteBatch);
         circlePlayer.draw(game.spriteBatch);
     }
 
-    public void drawSimple() {
+    private void drawSimple() {
         game.shapeRenderer.setProjectionMatrix(cam.combined);
 
         universe.draw(game.shapeRenderer);
         circlePlayer.draw(game.shapeRenderer);
     }
 
-    public void switchDrawMode() {
+    private void switchDrawMode() {
         if (drawMode == 0) {
             //game.spriteBatch.dispose();
             drawMode = 1;
@@ -190,7 +167,7 @@ public class GameScreen implements Screen {
         cam.up.set(0, -1, 0);
         cam.position.set(circlePlayer.getX(), circlePlayer.getY(), 0);
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
-        cam.zoom = ((20f * 40f) / (float) UNIVERSE_SIZE);
+        cam.zoom = ((20f * 40f) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
     }
 
     private void cameraFollowSmooth() {
@@ -201,7 +178,7 @@ public class GameScreen implements Screen {
         cam.position.x += newVec.x;
         cam.position.y += newVec.y;
 
-        //cam vec repurused to increase camera heigh from ground
+        //cam vec repurposed to increase camera heigh from ground
         camVec.x = cam.position.x;
         camVec.y = cam.position.y;
 
@@ -216,22 +193,19 @@ public class GameScreen implements Screen {
 
         cam.up.set(0, -1, 0);
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
-        cam.zoom = ((20f * 40f) / (float) UNIVERSE_SIZE);
-        //oldToNew.scl
-
+        cam.zoom = ((20f * 40f) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
     }
 
     private void handleInputs() {
-        handleUniversalInputs();
+        handleGameUniversalInputs();
+
         if (cameraType == CameraType.PLAYER) {
-            //handlePlayerInputs();
             Vector3 cursorPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             Vector3 aimingAt = cam.unproject(cursorPos);
             circlePlayer.aimingAt = aimingAt;
 
             cpc.handlePlayerInputs(cam);
 
-            //circlePlayer.calcNewPosition(1,0,false);
         } else if (cameraType == CameraType.FREE) {
             handleFreeInputs();
         }
@@ -249,64 +223,55 @@ public class GameScreen implements Screen {
             cam.zoom -= 0.02;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            cam.translate(-CAM_SPEED, 0, 0);
+            cam.translate(-Constants.DEFAULT_CAM_SPEED, 0, 0);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            cam.translate(CAM_SPEED, 0, 0);
+            cam.translate(Constants.DEFAULT_CAM_SPEED, 0, 0);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            cam.translate(0, -CAM_SPEED, 0);
+            cam.translate(0, -Constants.DEFAULT_CAM_SPEED, 0);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            cam.translate(0, CAM_SPEED, 0);
+            cam.translate(0, Constants.DEFAULT_CAM_SPEED, 0);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            cam.rotate(-CAM_ROT_SPEED, 0, 0, 1);
+            cam.rotate(-Constants.DEDAULT_CAM_ROT_SPEED, 0, 0, 1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.E)) {
-            cam.rotate(CAM_ROT_SPEED, 0, 0, 1);
+            cam.rotate(Constants.DEDAULT_CAM_ROT_SPEED, 0, 0, 1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             centerCameraOnPlayer();
         }
 
-        cam.zoom = MathUtils.clamp(cam.zoom, 0.000001f, UNIVERSE_SIZE / cam.viewportWidth);
+        cam.zoom = MathUtils.clamp(cam.zoom, 0.000001f, Constants.DEFAULT_UNIVERSE_SIZE / cam.viewportWidth);
 
         float effectiveViewportWidth = cam.viewportWidth * cam.zoom;
         float effectiveViewportHeight = cam.viewportHeight * cam.zoom;
 
-        cam.position.x = MathUtils.clamp(cam.position.x, effectiveViewportWidth / 2f, UNIVERSE_SIZE - effectiveViewportWidth / 2f);
-        cam.position.y = MathUtils.clamp(cam.position.y, effectiveViewportHeight / 2f, UNIVERSE_SIZE - effectiveViewportHeight / 2f);
+        cam.position.x = MathUtils.clamp(cam.position.x, effectiveViewportWidth / 2f, Constants.DEFAULT_UNIVERSE_SIZE - effectiveViewportWidth / 2f);
+        cam.position.y = MathUtils.clamp(cam.position.y, effectiveViewportHeight / 2f, Constants.DEFAULT_UNIVERSE_SIZE - effectiveViewportHeight / 2f);
     }
 
-    private void handleUniversalInputs() {
-        if (camChangeTimeout > 0) camChangeTimeout--;
-        if (drawModeSwitchTimeout > 0) drawModeSwitchTimeout--;
-
-        if (Gdx.input.isKeyPressed(Input.Keys.V)) {
-            if (camChangeTimeout == 0) {
-                camChangeTimeout = 50;
-                if (cameraType == CameraType.PLAYER) {
-                    cameraType = CameraType.FREE;
-                } else if (cameraType == CameraType.FREE) {
-                    cameraType = CameraType.PLAYER;
-                    centerCameraOnPlayer();
-                }
+    private void handleGameUniversalInputs() {
+        //Changes camera mode [PLAYER/FREE]
+        if (Gdx.input.isKeyJustPressed(Input.Keys.V)) {
+            if (cameraType == CameraType.PLAYER) {
+                cameraType = CameraType.FREE;
+            } else if (cameraType == CameraType.FREE) {
+                cameraType = CameraType.PLAYER;
+                centerCameraOnPlayer();
             }
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.O)) {
-            if (drawModeSwitchTimeout == 0) {
-                drawModeSwitchTimeout = DEFAULT_DRAW_SWITCH_TIMEOUT;
-                switchDrawMode();
-            }
+        //Switch draw mode [SPRITE/SHAPE]
+        if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
+            switchDrawMode();
         }
 
+        //Return to main menu
         if (Gdx.input.isKeyPressed(Input.Keys.BACKSPACE)) {
-            //this.dispose();
             ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
         }
     }
-
-
 }

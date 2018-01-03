@@ -78,7 +78,7 @@ public class MainMenuScreen implements Screen {
 
         this.skip_for_loading = 2;
 
-        loopId = SoundSingleton.getInstance().arcade.loop();
+        loopId = SoundSingleton.getInstance().arcade.loop(0.5f);
     }
 
     @Override
