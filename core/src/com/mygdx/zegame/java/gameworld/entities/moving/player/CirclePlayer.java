@@ -11,6 +11,8 @@ import com.mygdx.zegame.java.commons.Commons;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 import com.mygdx.zegame.java.gameworld.entities.MovingEntity;
 import com.mygdx.zegame.java.sound.SoundSingleton;
+import com.mygdx.zegame.java.weapons.StartGun;
+import com.mygdx.zegame.java.weapons.Weapon;
 
 import java.util.Arrays;
 import java.util.List;
@@ -66,6 +68,15 @@ public class CirclePlayer extends MovingEntity {
             "legs_run_left12","legs_run_left14", "legs_run_left16",
             "legs_run_left18");
 
+    Sprite handIdleSprite, handWalkingSprite;
+
+    //Weapon and inventory stuff
+    public Weapon[] weapons;
+    public int selectedWeapon;
+
+
+
+    //Sound
     SoundSingleton sound;
 
 
@@ -107,6 +118,14 @@ public class CirclePlayer extends MovingEntity {
 
         spriteGun = new Sprite(new Texture("sprites/weapons/gun.png"),256,256);
 
+
+        //WEAPONS YEAH
+        this.weapons = new Weapon[6];
+        this.selectedWeapon = 0;
+
+        this.weapons[0] = new StartGun();
+
+
         elapsedTime = 0;
 
         sound = SoundSingleton.getInstance();
@@ -136,36 +155,43 @@ public class CirclePlayer extends MovingEntity {
         drawAiming(spriteBatch);
 
         if(movingDirection == -1){
-            drawGun(spriteBatch);
+            drawSelectedWeapon(spriteBatch);
             drawBody(spriteBatch);
             drawLegsAndFace(spriteBatch);
         } else {
             drawBody(spriteBatch);
             drawLegsAndFace(spriteBatch);
-            drawGun(spriteBatch);
+            drawSelectedWeapon(spriteBatch);
         }
 
         spriteBatch.end();
     }
 
-    public void drawGun(SpriteBatch spriteBatch){
-        Vector2 gunPosition = getGunSpritePosition();
-        spriteGun.setPosition(gunPosition.x, gunPosition.y);
-        spriteGun.setOrigin(spriteGun.getWidth()/2, spriteGun.getHeight()/2);
-        spriteGun.setScale(radius*2/spriteGun.getWidth());
-        //spriteGun.setRotation(rotationFromCenter-90);
-        spriteGun.setRotation(0);
 
-        if(aimingAt != null) {
-            spriteGun.rotate(Commons.angleBetweenPoints(newPosition, Commons.vec3to2(aimingAt)));
+    public void drawSelectedWeapon(SpriteBatch spriteBatch){
+        if(weapons[selectedWeapon] != null){
+            Vector2 weaponPosition = getSelectedWeaponPos();
+            Sprite weaponSprite = weapons[selectedWeapon].sprite;
+
+            weaponSprite.setPosition(weaponPosition.x, weaponPosition.y);
+            weaponSprite.setOrigin(weaponSprite.getWidth()/2, weaponSprite.getHeight()/2);
+            weaponSprite.setScale(radius*2/weaponSprite.getWidth());
+            weaponSprite.setRotation(0);
+
+            if(aimingAt != null) {
+                weaponSprite.rotate(Commons.angleBetweenPoints(newPosition, Commons.vec3to2(aimingAt)));
+            }
+
+            weaponSprite.draw(spriteBatch);
         }
+        //TODO: ELSE DRAW HANDS (no weapon) or something
 
-        spriteGun.draw(spriteBatch);
     }
+
 
     private void drawAiming(SpriteBatch spriteBatch){
         if(aimingAt != null) {
-            //Commons.drawLine(spriteBatch, getGunCenter(), Commons.vec3to2(aimingAt));
+            //Commons.drawLine(spriteBatch, getArmCenterPosition(), Commons.vec3to2(aimingAt));
         }
     }
 
@@ -338,7 +364,7 @@ public class CirclePlayer extends MovingEntity {
         if(isGrounded()){airtime=0;}
     }
 
-    private Vector2 getGunCenter(){
+    private Vector2 getArmCenterPosition(){
         Vector2 diff = new Vector2(0,0);
 
         if(movingDirection == 0 || inJump){
@@ -348,17 +374,39 @@ public class CirclePlayer extends MovingEntity {
         return  this.center.cpy().add(diff);
     }
 
-    private Vector2 getGunSpritePosition(){
-        Vector2 result = getGunCenter();
-        result.x-= spriteGun.getWidth()/2;
-        result.y-= spriteGun.getHeight()/2;
+    private Vector2 getSelectedWeaponPos(){
+        Vector2 result = getArmCenterPosition();
+        result.x-= weapons[selectedWeapon].sprite.getWidth()/2;
+        result.y-= weapons[selectedWeapon].sprite.getHeight()/2;
 
         return result;
     }
 
+    //Weapon stuff
+
+    public Weapon getSelectedWeapon(){
+        return weapons[selectedWeapon];
+    }
+
+    public void nextWeapon(){
+        if(selectedWeapon == weapons.length-1){
+            selectedWeapon = 0;
+        } else {
+            selectedWeapon++;
+        }
+    }
+
+    public void prevWeapon(){
+        if(selectedWeapon == 0){
+            selectedWeapon = weapons.length-1;
+        } else {
+            selectedWeapon --;
+        }
+    }
+
+    //String
     public String toString(){
         return "[CirclePlayer] POS["+this.center.toString()+"] SPEED "+this.speed.len()+" ["+this.speed.toString()+"] ACC "+this.acceleration.len()+" ["+ this.acceleration.toString() +"]";
 
     }
-
 }

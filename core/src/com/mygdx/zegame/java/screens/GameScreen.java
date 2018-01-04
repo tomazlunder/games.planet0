@@ -18,10 +18,14 @@ import com.mygdx.zegame.java.gameworld.Universe;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.gameworld.planets.FirstPlanet;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
+import com.mygdx.zegame.java.input.InputProcessorWS;
 import com.mygdx.zegame.java.playercontrollers.CirclePlayerController;
 import com.mygdx.zegame.java.sound.SoundSingleton;
 
-public class GameScreen implements Screen {
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+
+public class GameScreen implements Screen, MouseWheelListener{
 
     private GameClass game;
 
@@ -73,6 +77,8 @@ public class GameScreen implements Screen {
 
         //Init main sound track
         mainloopId = SoundSingleton.getInstance().mainLoop.loop(0.30f);
+
+        Gdx.input.setInputProcessor(new InputProcessorWS(circlePlayer));
     }
 
     @Override
@@ -272,6 +278,17 @@ public class GameScreen implements Screen {
         //Return to main menu
         if (Gdx.input.isKeyPressed(Input.Keys.BACKSPACE)) {
             ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+        }
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+
+        System.out.println("[CPC] Scolled!");
+        if(e.getWheelRotation() > 0){
+            circlePlayer.nextWeapon();
+        } else {
+            circlePlayer.prevWeapon();
         }
     }
 }
