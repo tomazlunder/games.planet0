@@ -118,7 +118,7 @@ public class GamemodeDemo {
         font.draw(hudBatch, "Weapon ["+circlePlayer.selectedWeapon +"]: " + weaponName, 20, Gdx.graphics.getHeight()-80);
 
         //PLAYER HUD ---
-        hudBatch.draw(greyBar, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()/6);
+        //hudBatch.draw(greyBar, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()/6);
 
         //PLAYER STATUS
         //Width and height of the player status underlay, every other piece of the underlay is based on this
@@ -149,8 +149,72 @@ public class GamemodeDemo {
         fontStatus.draw(hudBatch, armorLayout, underlayX + underlayWidth/2 - armorLayout.width/2 , underlayY + underlayHeight*2.5f/3);
 
         //PLAYER INVENTORY
-
+        //underlay
         hudBatch.draw(inventoryUnderlay, underlayX + underlayWidth, underlayY, underlayWidth/2, underlayHeight);
+
+        //frames (all non-selected)
+        float frameWH = underlayHeight/3;
+        float botRowY = underlayY+underlayHeight/100 * 10;
+        float topRowY = underlayY+underlayHeight-frameWH-underlayHeight/100 * 10;
+        float midColX = underlayX + underlayWidth + underlayWidth/4 - frameWH/2;
+
+        float betweenStartAndMidX = midColX  - (underlayX + underlayWidth);
+        float leftColX =  underlayX + underlayWidth + betweenStartAndMidX/2 - frameWH/2;
+        float rightColX = underlayX + underlayWidth + underlayWidth/4 + betweenStartAndMidX/2;
+
+        hudBatch.draw(inventoryFrame, midColX, botRowY, frameWH, frameWH );
+        hudBatch.draw(inventoryFrame, midColX, topRowY, frameWH, frameWH );
+
+        hudBatch.draw(inventoryFrame, leftColX, botRowY, frameWH, frameWH );
+        hudBatch.draw(inventoryFrame, leftColX, topRowY, frameWH, frameWH );
+
+        hudBatch.draw(inventoryFrame, rightColX, botRowY, frameWH, frameWH );
+        hudBatch.draw(inventoryFrame, rightColX, topRowY, frameWH, frameWH );
+
+        //active (selected)
+        int wpnNumber = circlePlayer.selectedWeapon;
+        float activeX, activeY;
+        if(wpnNumber >= 0 && wpnNumber < 3){
+            activeY = topRowY;
+        }
+        else{
+            activeY = botRowY;
+        }
+        if(wpnNumber%3 == 0){
+            activeX = leftColX;
+        } else if(wpnNumber%3 == 1){
+            activeX = midColX;
+        } else {
+            activeX = rightColX;
+        }
+
+        hudBatch.draw(inventoryFrameSelected, activeX, activeY, frameWH, frameWH);
+
+        //Weapon icons
+        if(circlePlayer.weapons[0] != null){
+            hudBatch.draw(circlePlayer.weapons[0].icon, leftColX, topRowY, frameWH, frameWH);
+        }
+        if(circlePlayer.weapons[1] != null){
+            hudBatch.draw(circlePlayer.weapons[1].icon, midColX, topRowY, frameWH, frameWH);
+        }
+        if(circlePlayer.weapons[2] != null){
+            hudBatch.draw(circlePlayer.weapons[2].icon, rightColX, topRowY, frameWH, frameWH);
+        }
+        if(circlePlayer.weapons[3] != null){
+            hudBatch.draw(circlePlayer.weapons[3].icon, leftColX, botRowY, frameWH, frameWH);
+        }
+        if(circlePlayer.weapons[4] != null){
+            hudBatch.draw(circlePlayer.weapons[4].icon, midColX, botRowY, frameWH, frameWH);
+        }
+        if(circlePlayer.weapons[5] != null){
+            hudBatch.draw(circlePlayer.weapons[5].icon, rightColX, botRowY, frameWH, frameWH);
+        }
+
+
+
+
+
+
 
         hudBatch.end();
     }
