@@ -11,11 +11,13 @@ import com.mygdx.zegame.java.commons.Commons;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 import com.mygdx.zegame.java.gameworld.entities.MovingEntity;
 import com.mygdx.zegame.java.sound.SoundSingleton;
+import com.mygdx.zegame.java.weapons.AmmoEnum;
 import com.mygdx.zegame.java.weapons.StartGun;
 import com.mygdx.zegame.java.weapons.Weapon;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class CirclePlayer extends MovingEntity {
     //Player physics
@@ -58,6 +60,8 @@ public class CirclePlayer extends MovingEntity {
 
     Animation<TextureRegion> bodyAnimation;
     Animation<TextureRegion> runAnimation;
+
+    private Map<AmmoEnum,Integer> ammo;
 
     private float elapsedTime;
     private float movingDirection;
@@ -260,6 +264,12 @@ public class CirclePlayer extends MovingEntity {
 
     //UPDATE
     public void updatePosition(boolean leftPressed, boolean rightPressed, boolean jumped, float deltaTime){
+        for(Weapon w : weapons){
+            if(w != null){
+                w.update(deltaTime);
+            }
+        }
+
         elapsedTime+= deltaTime;
         //SETTING VARIABLES FOR ANIMATION
         currentFrame ++;
@@ -401,6 +411,18 @@ public class CirclePlayer extends MovingEntity {
             selectedWeapon = weapons.length-1;
         } else {
             selectedWeapon --;
+        }
+    }
+
+    public void fireWeapon(){
+        if(weapons[selectedWeapon] != null){
+            weapons[selectedWeapon].shoot();
+        }
+    }
+
+    public void reload(){
+        if(weapons[selectedWeapon] != null){
+            weapons[selectedWeapon].reload(1000);
         }
     }
 

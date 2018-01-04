@@ -1,7 +1,9 @@
 package com.mygdx.zegame.java.weapons;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.mygdx.zegame.java.sound.SoundSingleton;
 
 public class StartGun extends Weapon {
 
@@ -16,6 +18,9 @@ public class StartGun extends Weapon {
         this.timeBetweenShots = 0.01f;
         this.timeForReload = 0.1f;
         this.reloadWastesAmmo = false;
+
+        this.betweenShotsCooldown = 0;
+        this.reloadCooldown = 0;
     }
 
 
@@ -24,7 +29,12 @@ public class StartGun extends Weapon {
     }
 
     public void shoot(){
-
+        if(magAmmoLeft > 0 && betweenShotsCooldown <= 0 && reloadCooldown <= 0){
+            System.out.println("[StartGun] boom!");
+            betweenShotsCooldown = timeBetweenShots;
+            magAmmoLeft --;
+            SoundSingleton.getInstance().shoot.play();
+        }
     }
 
 

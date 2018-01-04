@@ -44,6 +44,13 @@ public class CirclePlayerController implements PlayerController {
             this.jump = true;
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)){
+            circlePlayer.reload();
+        }
+
+        if (Gdx.input.justTouched()){
+            circlePlayer.fireWeapon();
+        }
     }
 
     @Override

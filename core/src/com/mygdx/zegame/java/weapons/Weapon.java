@@ -11,8 +11,8 @@ public abstract class Weapon {
     public int magSize;
     public int magAmmoLeft;
 
-    public float timeBetweenShots;
-    public float timeForReload;
+    public float timeBetweenShots, betweenShotsCooldown;
+    public float timeForReload, reloadCooldown;
 
     public boolean reloadWastesAmmo;
 
@@ -51,6 +51,23 @@ public abstract class Weapon {
     }
 
     public abstract void shoot();
+
+    //updates cooldowns and such
+    public void update(float deltaTime){
+        if(betweenShotsCooldown > 0){
+            betweenShotsCooldown -= deltaTime;
+        }
+        if(reloadCooldown > 0){
+            reloadCooldown -= deltaTime;
+        }
+
+        if(betweenShotsCooldown < 0){
+            betweenShotsCooldown = 0;
+        }
+        if(reloadCooldown < 0){
+            reloadCooldown = 0;
+        }
+    }
 
 
 }
