@@ -10,6 +10,8 @@ public class SoundSingleton {
 
     public Sound jump;
     public Sound shoot;
+    public Sound gun_reload;
+
     public Sound arcade;
     public Sound menuSelect;
 
@@ -17,6 +19,8 @@ public class SoundSingleton {
         mainLoop = Gdx.audio.newSound(Gdx.files.internal("audio/main_loop.mp3"));
         jump = Gdx.audio.newSound(Gdx.files.internal("audio/jump.wav"));
         shoot = Gdx.audio.newSound(Gdx.files.internal("audio/shot.wav"));
+        gun_reload = Gdx.audio.newSound(Gdx.files.internal("audio/gun_reload.mp3"));
+
 
         arcade = Gdx.audio.newSound(Gdx.files.internal("audio/arcade_loop.wav"));
         menuSelect = Gdx.audio.newSound(Gdx.files.internal("audio/menu_select.wav"));

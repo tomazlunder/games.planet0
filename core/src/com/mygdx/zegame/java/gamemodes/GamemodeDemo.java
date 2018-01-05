@@ -32,6 +32,8 @@ public class GamemodeDemo {
 
     private Texture inventoryUnderlay, inventoryFrame, inventoryFrameSelected;
 
+    private Texture topUnderlay;
+
     Planet fp;
 
     Texture goTexture;
@@ -62,6 +64,8 @@ public class GamemodeDemo {
         inventoryFrame = new Texture("sprites/gui/inventory/frame.png");
         inventoryFrameSelected = new Texture("sprites/gui/inventory/frame_sel.png");
 
+        topUnderlay = new Texture("sprites/gui/top/top_underlay.png");
+
 
 
         //Gamemode specific
@@ -70,6 +74,7 @@ public class GamemodeDemo {
         this.circlePlayer = circlePlayer;
 
         fp = universe.planets.get(0);
+        fp.entities.add(circlePlayer);
 
         fires = new ArrayList<Entity>();
         CircleFire cs = new CircleFire(fp.getX()-fp.getRadius()-5f,fp.getY(),10f,fp);
@@ -210,6 +215,8 @@ public class GamemodeDemo {
             hudBatch.draw(circlePlayer.weapons[5].icon, rightColX, botRowY, frameWH, frameWH);
         }
 
+        //TOP BAR
+        hudBatch.draw(topUnderlay, underlayX, underlayY+underlayHeight,underlayWidth,underlayHeight/2);
 
 
 

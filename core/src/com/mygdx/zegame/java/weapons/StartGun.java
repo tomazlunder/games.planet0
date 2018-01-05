@@ -16,7 +16,7 @@ public class StartGun extends Weapon {
         this.magAmmoLeft = magSize;
 
         this.timeBetweenShots = 0.01f;
-        this.timeForReload = 0.1f;
+        this.timeForReload = 2.8f;
         this.reloadWastesAmmo = false;
 
         this.betweenShotsCooldown = 0;

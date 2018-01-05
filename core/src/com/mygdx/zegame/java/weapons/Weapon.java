@@ -26,11 +26,15 @@ public abstract class Weapon {
             return number;
         }
 
+        reloadCooldown = timeForReload;
         if(reloadWastesAmmo){
             magAmmoLeft = 0;
         }
         int emptySpots = magSize - magAmmoLeft;
         if(emptySpots != 0){
+            SoundSingleton.getInstance().gun_reload.play();
+
+
             if(number >= emptySpots){
                 magAmmoLeft = magSize;
                 return number-emptySpots;

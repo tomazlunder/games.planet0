@@ -122,7 +122,7 @@ public class GameScreen implements Screen, MouseWheelListener{
         game.spriteBatch.setProjectionMatrix(cam.combined);
 
         universe.draw(game.spriteBatch);
-        circlePlayer.draw(game.spriteBatch);
+        //circlePlayer.draw(game.spriteBatch);
     }
 
     private void drawSimple() {

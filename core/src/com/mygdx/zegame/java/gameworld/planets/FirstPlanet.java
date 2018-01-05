@@ -14,13 +14,16 @@ public class FirstPlanet extends Planet {
     private Texture texLU, texLD, texRU, texRD;
     private Texture textureSky, textureYellow;
 
+    private Texture textureSkyDN;
+    private Sprite spriteSkyDN, spriteSkyBG;
+
     public FirstPlanet(Universe universe) {
         super(universe,universe.getSize() / 2, universe.getSize() / 2, universe.getSize()/10);
 
-        this.texLU = new Texture("world8KqLU.png");
-        this.texLD = new Texture("world8KqLD.png");
-        this.texRU = new Texture("world8KqRU.png");
-        this.texRD = new Texture("world8KqRD.png");
+        this.texLU = new Texture("world8KqLU_p2.png");
+        this.texLD = new Texture("world8KqLD_p2.png");
+        this.texRU = new Texture("world8KqRU_p2.png");
+        this.texRD = new Texture("world8KqRD_p2.png");
 
         texLU.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         texLD.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -28,7 +31,10 @@ public class FirstPlanet extends Planet {
         texRD.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         this.textureYellow = new Texture(Gdx.files.internal("1010yellow.png"));
-        this.textureSky = new Texture("sprites/world/sky1.png");
+        this.textureSky = new Texture("sprites/world/sky2.png");
+        this.spriteSkyBG = new Sprite(new Texture("sprites/world/sky2_dnt.png"));
+        this.spriteSkyDN = new Sprite(new Texture("sprites/world/night_test.png"));
+
     }
 
 
@@ -39,7 +45,14 @@ public class FirstPlanet extends Planet {
         float universeSize = universe.getSize();
         float planetRadius = this.getRadius();
 
-        spriteBatch.draw(textureSky, circleShape.center.x - 2f*planetRadius, circleShape.center.y - 2f*planetRadius, 4*planetRadius, 4*planetRadius);
+        //spriteBatch.draw(textureSky, circleShape.center.x - 2f*planetRadius, circleShape.center.y - 2f*planetRadius, 4*planetRadius, 4*planetRadius);
+        spriteSkyBG.setSize(4*planetRadius, 4* planetRadius);
+        spriteSkyBG.setPosition(circleShape.center.x - 2f*planetRadius,circleShape.center.y - 2f*planetRadius);
+        spriteSkyBG.setOrigin(spriteSkyBG.getWidth()/2, spriteSkyBG.getHeight()/2);
+        spriteSkyBG.rotate(0.01f);
+
+        spriteSkyBG.draw(spriteBatch);
+
 
         spriteBatch.draw(texLU, circleShape.center.x - planetRadius, circleShape.center.y, planetRadius, planetRadius);
         spriteBatch.draw(texLD, circleShape.center.x - planetRadius, circleShape.center.y - planetRadius, planetRadius, planetRadius);
@@ -47,11 +60,29 @@ public class FirstPlanet extends Planet {
         spriteBatch.draw(texRD, circleShape.center.x, circleShape.center.y - planetRadius, planetRadius, planetRadius);
 
         spriteBatch.draw(textureYellow, (this.circleShape.center.x - 5), (this.circleShape.center.y + planetRadius), 10, 50);
+
+
         spriteBatch.end();
 
         for(Entity e : entities){
             e.draw(spriteBatch);
         }
+
+        spriteSkyDN.setAlpha(0.8f);
+
+        spriteSkyDN.setSize(4*planetRadius, 4* planetRadius);
+        spriteSkyDN.setPosition(circleShape.center.x - 2f*planetRadius,circleShape.center.y - 2f*planetRadius);
+        spriteSkyDN.setOrigin(spriteSkyDN.getWidth()/2, spriteSkyDN.getHeight()/2);
+        spriteSkyDN.rotate(0.01f);
+
+
+        spriteBatch.begin();
+
+        spriteSkyDN.draw(spriteBatch);
+        spriteBatch.end();
+
+
+
     }
 
     @Override
