@@ -3,9 +3,12 @@ package com.mygdx.zegame.java.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -28,6 +31,7 @@ import java.awt.event.MouseWheelListener;
 public class GameScreen implements Screen, MouseWheelListener{
 
     private GameClass game;
+    private boolean isPaused;
 
     //Drawing
     private int drawMode;
@@ -47,12 +51,14 @@ public class GameScreen implements Screen, MouseWheelListener{
     //Sounds
     private long mainloopId;
 
+
     public GameScreen(GameClass game) {
         this.game = game;
     }
 
     @Override
     public void show() {
+        isPaused = false;
         tick = 0;
         drawMode = Constants.DEFAULT_DRAW_MODE;
 
@@ -79,15 +85,27 @@ public class GameScreen implements Screen, MouseWheelListener{
         mainloopId = SoundSingleton.getInstance().mainLoop.loop(0.30f);
 
         Gdx.input.setInputProcessor(new InputProcessorWS(circlePlayer));
+
+
+
+
     }
 
     @Override
     public void render(float delta) {
         float deltaTime = Gdx.graphics.getDeltaTime();
-        tick++;
-        handleInputs();
 
-        cpc.updatePlayer(deltaTime);
+        if(isPaused){
+            handlePausedInputs();
+        }
+        else
+        {
+            handleInputs();
+            cpc.updatePlayer(deltaTime);
+            gamemodeDemo.update(deltaTime);
+            universe.update(deltaTime);
+        }
+
         cam.update();
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -105,16 +123,20 @@ public class GameScreen implements Screen, MouseWheelListener{
             cameraFollowSmooth();
         }
 
+        if(isPaused){
+            gamemodeDemo.drawPausedScreen();
+        } else {
+            gamemodeDemo.drawHud();
+        }
+
         /*
          * TEST
          */
+        tick++;
         if (tick % 100 == 0) {
             //System.out.println(circlePlayer.toString());
             //logger.log();
         }
-
-        gamemodeDemo.update(deltaTime);
-        gamemodeDemo.drawHud();
     }
 
 
@@ -122,7 +144,6 @@ public class GameScreen implements Screen, MouseWheelListener{
         game.spriteBatch.setProjectionMatrix(cam.combined);
 
         universe.draw(game.spriteBatch);
-        //circlePlayer.draw(game.spriteBatch);
     }
 
     private void drawSimple() {
@@ -131,6 +152,7 @@ public class GameScreen implements Screen, MouseWheelListener{
         universe.draw(game.shapeRenderer);
         circlePlayer.draw(game.shapeRenderer);
     }
+
 
     private void switchDrawMode() {
         if (drawMode == 0) {
@@ -275,9 +297,21 @@ public class GameScreen implements Screen, MouseWheelListener{
             switchDrawMode();
         }
 
+
         //Return to main menu
-        if (Gdx.input.isKeyPressed(Input.Keys.BACKSPACE)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            isPaused = true;
+        }
+    }
+
+    private void handlePausedInputs(){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
+            isPaused = false;
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
             ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+
         }
     }
 

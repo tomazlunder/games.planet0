@@ -46,7 +46,7 @@ public class GameClass extends Game {
     }
 
     public void handleAppUniversalInputs(){
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)){
             Gdx.app.exit();
         }
     }

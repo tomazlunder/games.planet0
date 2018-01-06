@@ -12,6 +12,7 @@ import com.mygdx.zegame.java.gameworld.Universe;
 import com.mygdx.zegame.java.gameworld.entities.Entity;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.gameworld.entities.nonmoving.CircleFire;
+import com.mygdx.zegame.java.gameworld.entities.nonmoving.NorthPole;
 import com.mygdx.zegame.java.gameworld.entities.nonmoving.PickupShield;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 
@@ -33,6 +34,9 @@ public class GamemodeDemo {
     private Texture inventoryUnderlay, inventoryFrame, inventoryFrameSelected;
 
     private Texture topUnderlay;
+
+    private Texture texPaused, texBtnMenu, texBtnMenuSel, texBtnPlay, texBtnPlaySel, texBtnSet,texBtnSetSel;
+
 
     Planet fp;
 
@@ -66,6 +70,15 @@ public class GamemodeDemo {
 
         topUnderlay = new Texture("sprites/gui/top/top_underlay.png");
 
+        //PAUSED
+        texPaused = new Texture("menus/paused/paused_overlay.png");
+        texBtnMenu = new Texture("menus/paused/menu_btn.png");
+        texBtnMenuSel = new Texture("menus/paused/menu_btn.png");
+        texBtnPlay = new Texture("menus/paused/play_btn.png");
+        texBtnPlaySel = new Texture("menus/paused/play_btn_sel.png");
+        texBtnSet = new Texture("menus/paused/set_ico.png");
+        texBtnSetSel = new Texture("menus/paused/set_ico_sel.png");
+
 
 
         //Gamemode specific
@@ -85,6 +98,9 @@ public class GamemodeDemo {
         PickupShield ps = new PickupShield(0, fp);
         shieldPickups.add(ps);
         fp.entities.add(ps);
+
+        NorthPole np = new NorthPole(fp);
+        fp.entities.add(np);
     }
 
     public void update(float deltaTime){
@@ -221,6 +237,23 @@ public class GamemodeDemo {
 
 
 
+
+
+        hudBatch.end();
+    }
+
+    public void drawPausedScreen(){
+        hudBatch.begin();
+
+        float screenH = Gdx.graphics.getHeight();
+        float screenW = Gdx.graphics.getWidth();
+
+        hudBatch.draw(texPaused,0,0,screenW,screenH);
+
+
+        float buttonH = screenH / 6.75f;
+        float buttonW = screenW / 4;
+        float btnY = Gdx.graphics.getHeight()/2 - buttonH/2;
 
 
         hudBatch.end();

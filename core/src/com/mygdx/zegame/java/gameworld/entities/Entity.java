@@ -30,6 +30,8 @@ public abstract class Entity implements BasicCollision{
         this.baseCollision = new CircleShape(x,y,radius);
         this.nearestPlanet = planet;
 
+        //this.nearestPlanet.entities.add(this);
+
         calculateRotationFromCenter();
     }
 
@@ -99,7 +101,7 @@ public abstract class Entity implements BasicCollision{
     /**
      * Basic functions
      */
-    public void update(){};
+    public void update(float deltaTime){};
 
     public abstract void draw(SpriteBatch spriteBatch);
     public abstract void draw(ShapeRenderer shapeRenderer);

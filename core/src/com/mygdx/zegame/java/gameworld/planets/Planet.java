@@ -65,4 +65,10 @@ public abstract class Planet implements BasicCollision{
 
     abstract public void draw(SpriteBatch spriteBatch);
     abstract public void draw(ShapeRenderer shapeRenderer);
+
+    public void update(float deltaTime){
+        for(Entity e : entities){
+            e.update(deltaTime);
+        }
+    }
 }
