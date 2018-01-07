@@ -79,10 +79,6 @@ public class GameScreen implements Screen, MouseWheelListener{
         mainloopId = SoundSingleton.getInstance().mainLoop.loop(0.30f);
 
         Gdx.input.setInputProcessor(new InputProcessorWS(circlePlayer));
-
-
-
-
     }
 
     @Override
@@ -144,7 +140,6 @@ public class GameScreen implements Screen, MouseWheelListener{
         }
     }
 
-
     private void drawSprite() {
         game.spriteBatch.setProjectionMatrix(cam.combined);
 
@@ -157,7 +152,6 @@ public class GameScreen implements Screen, MouseWheelListener{
         universe.draw(game.shapeRenderer);
         circlePlayer.draw(game.shapeRenderer);
     }
-
 
     private void switchDrawMode() {
         if (drawMode == 0) {
@@ -196,6 +190,7 @@ public class GameScreen implements Screen, MouseWheelListener{
         SoundSingleton.getInstance().mainLoop.stop(mainloopId);
     }
 
+
     private void centerCameraOnPlayer() {
         cam.up.set(0, -1, 0);
         cam.position.set(circlePlayer.getX(), circlePlayer.getY(), 0);
@@ -228,6 +223,10 @@ public class GameScreen implements Screen, MouseWheelListener{
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
         cam.zoom = ((20f * 40f) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
     }
+
+    /*
+     * INPUT ----------------------------------------------------------------------------------------------------------------
+     */
 
     private void handleInputs() {
         handleGameUniversalInputs();
