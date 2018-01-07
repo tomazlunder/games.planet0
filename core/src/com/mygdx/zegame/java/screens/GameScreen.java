@@ -3,12 +3,9 @@ package com.mygdx.zegame.java.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -22,7 +19,6 @@ import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.gameworld.planets.FirstPlanet;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 import com.mygdx.zegame.java.input.InputProcessorWS;
-import com.mygdx.zegame.java.playercontrollers.CirclePlayerController;
 import com.mygdx.zegame.java.sound.SoundSingleton;
 
 import java.awt.event.MouseWheelEvent;
@@ -43,7 +39,6 @@ public class GameScreen implements Screen, MouseWheelListener{
     //Main game objects
     private Universe universe;
     private CirclePlayer circlePlayer;
-    private CirclePlayerController cpc;
     private GamemodeDemo gamemodeDemo;
 
     private int tick;
@@ -70,7 +65,6 @@ public class GameScreen implements Screen, MouseWheelListener{
         Planet firstPlanet = new FirstPlanet(universe);
         universe.planets.add(firstPlanet);
         circlePlayer = new CirclePlayer(Constants.DEFAULT_PLAYER_SIZE, firstPlanet, cam);
-        cpc = new CirclePlayerController(circlePlayer);
 
         //Init camera
         cameraType = CameraType.PLAYER;
@@ -103,7 +97,6 @@ public class GameScreen implements Screen, MouseWheelListener{
         else
         {
             handleInputs();
-            cpc.updatePlayer(deltaTime);
             gamemodeDemo.update(deltaTime);
             universe.update(deltaTime);
         }
@@ -240,12 +233,7 @@ public class GameScreen implements Screen, MouseWheelListener{
         handleGameUniversalInputs();
 
         if (cameraType == CameraType.PLAYER) {
-            Vector3 cursorPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-            Vector3 aimingAt = cam.unproject(cursorPos);
-            circlePlayer.aimingAt = aimingAt;
-
-            cpc.handlePlayerInputs(cam);
-
+            handlePlayerInputs();
         } else if (cameraType == CameraType.FREE) {
             handleFreeInputs();
         }
@@ -325,6 +313,33 @@ public class GameScreen implements Screen, MouseWheelListener{
             ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
 
         }
+    }
+
+    public void handlePlayerInputs() {
+        //HANDLE PLAYER INPUTS MUST BE CALLED BEFORE UPDATING THE PLAYER, SO THESE SETTINGS ARE USED (movingLeft, movingRight, jumping)
+        if (Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)){
+            circlePlayer.movingLeft = true;
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.D) && !Gdx.input.isKeyPressed(Input.Keys.A)) {
+            circlePlayer.movingRight = true;
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            circlePlayer.jumping = true;
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)){
+            circlePlayer.reload();
+        }
+
+        if (Gdx.input.justTouched()){
+            circlePlayer.fireWeapon();
+        }
+
+        Vector3 cursorPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        Vector3 aimingAt = cam.unproject(cursorPos);
+        circlePlayer.aimingAt = aimingAt;
     }
 
     @Override

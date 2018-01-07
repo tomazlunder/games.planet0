@@ -145,6 +145,10 @@ public class CirclePlayer extends MovingEntity {
     //UPDATE
     @Override
     public void update(float deltaTime){
+        this.calculateRotationFromCenter();
+        this.calcGravityForce();
+        this.calcUnitVectors();
+
         for(Weapon w : weapons){
             if(w != null){
                 w.update(deltaTime);
