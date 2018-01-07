@@ -95,9 +95,11 @@ public class GameScreen implements Screen, MouseWheelListener{
     public void render(float delta) {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
+        //IF PAUSED
         if(isPaused){
             handlePausedInputs();
         }
+        //IF NOT PAUSED (Playing)
         else
         {
             handleInputs();
@@ -106,20 +108,24 @@ public class GameScreen implements Screen, MouseWheelListener{
             universe.update(deltaTime);
         }
 
+        //Camera update
         cam.update();
 
+        //Clear screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        //Draw the world depending on drawMode (Sprite/Shape)
         if (drawMode == 0) {
             drawSprite();
         }
-        if (drawMode == 1) {
+        else if (drawMode == 1) {
             drawSimple();
         }
 
+        //If
         if (cameraType == CameraType.PLAYER) {
-            centerCameraOnPlayer();
+            //centerCameraOnPlayer();
             cameraFollowSmooth();
         }
 
@@ -219,7 +225,7 @@ public class GameScreen implements Screen, MouseWheelListener{
         Vector2 planetVec = circlePlayer.getNearestPlanet().getPosition();
         camVec.x -= planetVec.x;
         camVec.y -= planetVec.y;
-        camVec.setLength(circlePlayer.getRadius() * 2.5f);
+        camVec.setLength(20);
 
         cam.position.x += camVec.x;
         cam.position.y += camVec.y;

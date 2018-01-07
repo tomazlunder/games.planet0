@@ -31,6 +31,8 @@ public class CirclePlayer extends MovingEntity {
     private float SPEED_FACTOR = 60;
     private float DEFAULT_GRAVITY = 0.38f;
 
+    private float legHeight;
+
     public boolean movingLeft, movingRight, jumping;
 
     public Vector3 aimingAt;
@@ -97,6 +99,8 @@ public class CirclePlayer extends MovingEntity {
         this.airtime = 0;
         this.inJump = false;
 
+        this.legHeight = radius/2.5f;
+
         this.healthPoints = DEFAULT_HEALTH;
         this.shieldPoints = DEFAULT_SHIELD;
 
@@ -136,133 +140,6 @@ public class CirclePlayer extends MovingEntity {
 
         sound = SoundSingleton.getInstance();
         movingLeft = movingRight = jumping = false;
-    }
-
-    //HEALTH RELATED
-    public void takeDamage(float damage){
-        if(this.shieldPoints > 0){
-            shieldPoints-= damage;
-            if(shieldPoints < 0){shieldPoints = 0;}
-        } else {
-            healthPoints-=damage;
-        }
-    }
-
-    public void gainShield(){
-        this.shieldPoints = 100;
-    }
-
-    public boolean isDead(){
-        return healthPoints <= 0;
-    }
-
-    //DRAW WITH SPRITES
-    public void draw(SpriteBatch spriteBatch){
-        spriteBatch.begin();
-        drawAiming(spriteBatch);
-
-        if(movingDirection == -1){
-            drawSelectedWeapon(spriteBatch);
-            drawBody(spriteBatch);
-            drawLegsAndFace(spriteBatch);
-        } else {
-            drawBody(spriteBatch);
-            drawLegsAndFace(spriteBatch);
-            drawSelectedWeapon(spriteBatch);
-        }
-
-        spriteBatch.end();
-    }
-
-
-    public void drawSelectedWeapon(SpriteBatch spriteBatch){
-        if(weapons[selectedWeapon] != null){
-            Vector2 weaponPosition = getSelectedWeaponPos();
-            Sprite weaponSprite = weapons[selectedWeapon].sprite;
-
-            weaponSprite.setPosition(weaponPosition.x, weaponPosition.y);
-            weaponSprite.setOrigin(weaponSprite.getWidth()/2, weaponSprite.getHeight()/2);
-            weaponSprite.setScale(radius*2/weaponSprite.getWidth());
-            weaponSprite.setRotation(0);
-
-            if(aimingAt != null) {
-                weaponSprite.rotate(Commons.angleBetweenPoints(newPosition, Commons.vec3to2(aimingAt)));
-            }
-
-            weaponSprite.draw(spriteBatch);
-        }
-        //TODO: ELSE DRAW HANDS (no weapon) or something
-
-    }
-
-
-    private void drawAiming(SpriteBatch spriteBatch){
-        if(aimingAt != null) {
-            //Commons.drawLine(spriteBatch, getArmCenterPosition(), Commons.vec3to2(aimingAt));
-        }
-    }
-
-    public void drawLegsAndFace(SpriteBatch spriteBatch){
-        if(trLegs.isFlipX()){
-            trLegs.flip(true,false);
-        }
-        if(trFace.isFlipX()){
-            trFace.flip(true,false);
-        }
-
-        if(this.movingDirection != 0){
-            trLegs = ta.findRegion(LEG_RUN_ANIMATION.get(currentFrame%LEG_RUN_ANIMATION.size()));
-            trFace = ta.findRegion(FACE_LEFT);
-            if(this.movingDirection == 1){
-                trLegs.flip(true,false);
-                trFace.flip(true, false);
-            }
-        } else {
-            trLegs = ta.findRegion(LEG_DEFAULT);
-            trFace = ta.findRegion(FACE_IDLE);
-        }
-        if(this.inJump){
-            trLegs = ta.findRegion(LEG_JUMP);
-            trFace = ta.findRegion(FACE_JUMP);
-        }
-
-        spriteLegs.setRegion(trLegs);
-        spriteLegs.setPosition(center.x-spriteLegs.getWidth()/2,center.y-spriteLegs.getHeight()/2);
-        spriteLegs.setOrigin(spriteLegs.getWidth()/2, spriteLegs.getHeight()/2);
-        spriteLegs.setScale(radius*2/spriteLegs.getWidth());
-        spriteLegs.setRotation(rotationFromCenter-90);
-
-        spriteLegs.draw(spriteBatch);
-
-        spriteFace.setRegion(trFace);
-        spriteFace.setPosition(center.x-spriteFace.getWidth()/2,center.y-spriteFace.getHeight()/2);
-        spriteFace.setOrigin(spriteFace.getWidth()/2, spriteFace.getHeight()/2);
-        spriteFace.setScale(radius*2/spriteFace.getWidth());
-        spriteFace.setRotation(rotationFromCenter-90);
-
-        spriteFace.draw(spriteBatch);
-    }
-
-    public void drawBody(SpriteBatch spriteBatch){
-        //trBody = ta.findRegion(BODY_ANIMATION.get(currentFrame%BODY_ANIMATION.size()));
-        trBody = ta.findRegion("body1");
-
-        spriteBody.setRegion(trBody);
-        spriteBody.setPosition(center.x-spriteBody.getWidth()/2,center.y-spriteBody.getHeight()/2);
-        spriteBody.setOrigin(spriteBody.getWidth()/2, spriteBody.getHeight()/2);
-        spriteBody.setScale(radius*2/spriteBody.getWidth());
-        spriteBody.setRotation(rotationFromCenter-90);
-        spriteBody.draw(spriteBatch);
-
-    }
-
-    //DRAW SIMPLE
-    public void draw(ShapeRenderer shapeRenderer){
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.circle(center.x,center.y,radius,50);
-
-        shapeRenderer.end();
     }
 
     //UPDATE
@@ -368,10 +245,125 @@ public class CirclePlayer extends MovingEntity {
         movingLeft = movingRight = jumping = false;
     }
 
+    //DRAW WITH SPRITES
+    public void draw(SpriteBatch spriteBatch){
+        spriteBatch.begin();
+        drawAiming(spriteBatch);
+
+        if(movingDirection == -1){
+            drawSelectedWeapon(spriteBatch);
+            drawBody(spriteBatch);
+            drawLegsAndFace(spriteBatch);
+        } else {
+            drawBody(spriteBatch);
+            drawLegsAndFace(spriteBatch);
+            drawSelectedWeapon(spriteBatch);
+        }
+
+        spriteBatch.end();
+    }
+
+    public void drawSelectedWeapon(SpriteBatch spriteBatch){
+        if(weapons[selectedWeapon] != null){
+            Vector2 weaponPosition = getSelectedWeaponPos();
+            Sprite weaponSprite = weapons[selectedWeapon].sprite;
+
+            weaponSprite.setPosition(weaponPosition.x, weaponPosition.y);
+            weaponSprite.setOrigin(weaponSprite.getWidth()/2, weaponSprite.getHeight()/2);
+            //weaponSprite.setScale(radius*2/weaponSprite.getWidth());
+            weaponSprite.setScale(radius*2/(weaponSprite.getWidth()* 2/3));
+
+            weaponSprite.setRotation(0);
+
+            if(aimingAt != null) {
+                weaponSprite.rotate(Commons.angleBetweenPoints(newPosition, Commons.vec3to2(aimingAt)));
+            }
+
+            weaponSprite.draw(spriteBatch);
+        }
+        //TODO: ELSE DRAW HANDS (no weapon) or something
+
+    }
+
+    private void drawAiming(SpriteBatch spriteBatch){
+        if(aimingAt != null) {
+            //Commons.drawLine(spriteBatch, getArmCenterPosition(), Commons.vec3to2(aimingAt));
+        }
+    }
+
+    public void drawLegsAndFace(SpriteBatch spriteBatch){
+        if(trLegs.isFlipX()){
+            trLegs.flip(true,false);
+        }
+        if(trFace.isFlipX()){
+            trFace.flip(true,false);
+        }
+
+        if(this.movingDirection != 0){
+            trLegs = ta.findRegion(LEG_RUN_ANIMATION.get(currentFrame%LEG_RUN_ANIMATION.size()));
+            trFace = ta.findRegion(FACE_LEFT);
+            if(this.movingDirection == 1){
+                trLegs.flip(true,false);
+                trFace.flip(true, false);
+            }
+        } else {
+            trLegs = ta.findRegion(LEG_DEFAULT);
+            trFace = ta.findRegion(FACE_IDLE);
+        }
+        if(this.inJump){
+            trLegs = ta.findRegion(LEG_JUMP);
+            trFace = ta.findRegion(FACE_JUMP);
+        }
+
+        spriteLegs.setRegion(trLegs);
+        spriteLegs.setPosition(center.x-spriteLegs.getWidth()/2,center.y-spriteLegs.getHeight()/2);
+        spriteLegs.setOrigin(spriteLegs.getWidth()/2, spriteLegs.getHeight()/2);
+        //spriteLegs.setScale(radius*2/spriteLegs.getWidth());
+        spriteLegs.setScale(radius*2/(spriteLegs.getWidth() * 2/3));
+
+        spriteLegs.setRotation(rotationFromCenter-90);
+
+        spriteLegs.draw(spriteBatch);
+
+        spriteFace.setRegion(trFace);
+        spriteFace.setPosition(center.x-spriteFace.getWidth()/2,center.y-spriteFace.getHeight()/2);
+        spriteFace.setOrigin(spriteFace.getWidth()/2, spriteFace.getHeight()/2);
+        //spriteFace.setScale(radius*2/spriteFace.getWidth());
+        spriteFace.setScale(radius*2/(spriteFace.getWidth() * 2/3));
+
+        spriteFace.setRotation(rotationFromCenter-90);
+
+        spriteFace.draw(spriteBatch);
+    }
+
+    public void drawBody(SpriteBatch spriteBatch){
+        //trBody = ta.findRegion(BODY_ANIMATION.get(currentFrame%BODY_ANIMATION.size()));
+        trBody = ta.findRegion("body1");
+
+        spriteBody.setRegion(trBody);
+        spriteBody.setPosition(center.x-spriteBody.getWidth()/2,center.y-spriteBody.getHeight()/2);
+        spriteBody.setOrigin(spriteBody.getWidth()/2, spriteBody.getHeight()/2);
+        //spriteBody.setScale(radius*2/spriteBody.getWidth());
+        spriteBody.setScale(radius*2/(spriteBody.getWidth() * 2/3));
+        spriteBody.setRotation(rotationFromCenter-90);
+        spriteBody.draw(spriteBatch);
+
+    }
+
+    //DRAW SIMPLE
+    public void draw(ShapeRenderer shapeRenderer){
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.GREEN);
+        shapeRenderer.circle(center.x,center.y,radius,50);
+
+        shapeRenderer.end();
+    }
+
+
     //UTILITY
     private void correctForPlanet(){
         float distance = distanceFromCenter();
-        float diff = (nearestPlanet.getRadius() + this.radius) - distance;
+        float diff = (nearestPlanet.getRadius() + this.radius + this.legHeight) - distance;
         if(diff > 0){
             center.add(this.upUnit.scl(Math.abs(diff)));
         }
@@ -380,11 +372,16 @@ public class CirclePlayer extends MovingEntity {
         if(isGrounded()){airtime=0;}
     }
 
+    @Override
+    public boolean isGrounded(){
+        return (heigthFromGround() < legHeight);
+    }
+
     private Vector2 getArmCenterPosition(){
         Vector2 diff = new Vector2(0,0);
 
         if(movingDirection == 0 || inJump){
-            diff = this.leftUnit.cpy().scl(10f);
+            diff = this.leftUnit.cpy().scl(this.radius*4/5);
         }
 
         return  this.center.cpy().add(diff);
@@ -398,7 +395,25 @@ public class CirclePlayer extends MovingEntity {
         return result;
     }
 
-    //Weapon stuff
+    //HEALTH RELATED
+    public void takeDamage(float damage){
+        if(this.shieldPoints > 0){
+            shieldPoints-= damage;
+            if(shieldPoints < 0){shieldPoints = 0;}
+        } else {
+            healthPoints-=damage;
+        }
+    }
+
+    public void gainShield(){
+        this.shieldPoints = 100;
+    }
+
+    public boolean isDead(){
+        return healthPoints <= 0;
+    }
+
+    //WEAPONS / INVENTORY
 
     public Weapon getSelectedWeapon(){
         return weapons[selectedWeapon];
