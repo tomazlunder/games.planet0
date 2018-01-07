@@ -12,36 +12,29 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 public class CirclePlayerController implements PlayerController {
-    private boolean leftPressed, rightPressed;
-    private boolean jump;
 
     CirclePlayer circlePlayer;
 
 
 
     public CirclePlayerController(CirclePlayer cp) {
-        this.leftPressed = false;
-        this.rightPressed = false;
 
         this.circlePlayer = cp;
     }
 
     @Override
     public void handlePlayerInputs(OrthographicCamera camera) {
-        this.jump = false;
-        this.leftPressed = false;
-        this.rightPressed = false;
-
+        //HANDLE PLAYER INPUTS MUST BE CALLED BEFORE UPDATING THE PLAYER, SO THESE SETTINGS ARE USED (movingLeft, movingRight, jumping)
         if (Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)){
-            leftPressed = true;
+            circlePlayer.movingLeft = true;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.D) && !Gdx.input.isKeyPressed(Input.Keys.A)) {
-            rightPressed = true;
+            circlePlayer.movingRight = true;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            this.jump = true;
+            circlePlayer.jumping = true;
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)){
@@ -58,7 +51,6 @@ public class CirclePlayerController implements PlayerController {
         circlePlayer.calculateRotationFromCenter();
         circlePlayer.calcGravityForce();
         circlePlayer.calcUnitVectors();
-        circlePlayer.updatePosition(leftPressed, rightPressed, jump, deltaTime);
     }
 
 

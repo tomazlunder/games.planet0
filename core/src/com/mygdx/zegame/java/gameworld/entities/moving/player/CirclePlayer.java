@@ -31,6 +31,8 @@ public class CirclePlayer extends MovingEntity {
     private float SPEED_FACTOR = 60;
     private float DEFAULT_GRAVITY = 0.38f;
 
+    public boolean movingLeft, movingRight, jumping;
+
     public Vector3 aimingAt;
 
     private boolean inJump;
@@ -133,6 +135,7 @@ public class CirclePlayer extends MovingEntity {
         elapsedTime = 0;
 
         sound = SoundSingleton.getInstance();
+        movingLeft = movingRight = jumping = false;
     }
 
     //HEALTH RELATED
@@ -263,7 +266,8 @@ public class CirclePlayer extends MovingEntity {
     }
 
     //UPDATE
-    public void updatePosition(boolean leftPressed, boolean rightPressed, boolean jumped, float deltaTime){
+    @Override
+    public void update(float deltaTime){
         for(Weapon w : weapons){
             if(w != null){
                 w.update(deltaTime);
@@ -273,13 +277,13 @@ public class CirclePlayer extends MovingEntity {
         elapsedTime+= deltaTime;
         //SETTING VARIABLES FOR ANIMATION
         currentFrame ++;
-        if(leftPressed && movingDirection != -1){
+        if(movingLeft && movingDirection != -1){
             currentFrame = 0;
             movingDirection = -1;
-        } else if (rightPressed && movingDirection != 1){
+        } else if (movingRight && movingDirection != 1){
             currentFrame = 0;
             movingDirection = 1;
-        } else if (!leftPressed && !rightPressed){
+        } else if (!movingLeft && !movingRight){
             movingDirection = 0;
             currentFrame = 0;
         }
@@ -301,7 +305,7 @@ public class CirclePlayer extends MovingEntity {
         }
 
         //PLAYER JUMPS
-        if(jumped && isGrounded() &&!inJump && jumpTimeout <= 0) {
+        if(jumping && isGrounded() &&!inJump && jumpTimeout <= 0) {
             sound.jump.play();
             jumpTimeout = DEFAULT_JUMP_TIMEOUT;
             airtime = 0;
@@ -318,7 +322,7 @@ public class CirclePlayer extends MovingEntity {
         if(!inJump) {
             //if   On ground and pressing left
             //else On ground not pressing left
-            if (leftPressed && !rightPressed) {
+            if (movingLeft && !movingRight) {
                 if (this.acceleration.x > -maxAcceleration) {
                     this.acceleration.x -= accelerationStep;
                 }
@@ -326,13 +330,13 @@ public class CirclePlayer extends MovingEntity {
 
             //if On ground and pressing right
             //else On ground not pressing right
-            if (rightPressed && !leftPressed) {
+            if (movingRight && !movingLeft) {
                 if (this.acceleration.x < maxAcceleration) {
                     this.acceleration.x += accelerationStep;
                 }
             }
 
-            if(!rightPressed && !leftPressed){
+            if(!movingRight && !movingLeft){
                 this.acceleration.x = 0;
                 this.speed.x/=3;
             }
@@ -360,6 +364,8 @@ public class CirclePlayer extends MovingEntity {
         this.center = newPosition;
         correctForPlanet();
         this.baseCollision.updatePosition(center);
+
+        movingLeft = movingRight = jumping = false;
     }
 
     //UTILITY
