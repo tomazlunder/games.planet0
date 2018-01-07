@@ -35,7 +35,7 @@ public class FirstPlanet extends Planet {
         texRU.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         texRD.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-        this.textureSky = new Texture("sprites/world/sky2.png");
+        //this.textureSky = new Texture("sprites/world/sky2.png");
         this.spriteSkyBG = new Sprite(new Texture("sprites/world/sky_art1_c.png"));
         this.spriteSkyDN = new Sprite(new Texture("sprites/world/night2_c.png"));
 

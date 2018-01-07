@@ -124,7 +124,13 @@ public class GameScreen implements Screen, MouseWheelListener{
         }
 
         if(isPaused){
-            gamemodeDemo.drawPausedScreen();
+            int mouse = gamemodeDemo.drawPausedScreenAndMouseCmd();
+            if(mouse == 1){
+                ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+            }
+            if(mouse ==2){
+                isPaused = false;
+            }
         } else {
             gamemodeDemo.drawHud();
         }
@@ -181,7 +187,7 @@ public class GameScreen implements Screen, MouseWheelListener{
 
     @Override
     public void hide() {
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         this.dispose();
     }

@@ -17,10 +17,11 @@ public class DesktopLauncher  {
 		config.resizable = true;
 
 		//Cool mode
+		/*
 		config.width = 1920;
 		config.height = 1080;
 		config.fullscreen = true;
-
+		*/
 
 		app = new LwjglApplication(new GameClass(), config);
 	}

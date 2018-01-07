@@ -73,7 +73,7 @@ public class GamemodeDemo {
         //PAUSED
         texPaused = new Texture("menus/paused/paused_overlay.png");
         texBtnMenu = new Texture("menus/paused/menu_btn.png");
-        texBtnMenuSel = new Texture("menus/paused/menu_btn.png");
+        texBtnMenuSel = new Texture("menus/paused/menu_btn_sel.png");
         texBtnPlay = new Texture("menus/paused/play_btn.png");
         texBtnPlaySel = new Texture("menus/paused/play_btn_sel.png");
         texBtnSet = new Texture("menus/paused/set_ico.png");
@@ -242,7 +242,7 @@ public class GamemodeDemo {
         hudBatch.end();
     }
 
-    public void drawPausedScreen(){
+    public int drawPausedScreenAndMouseCmd(){
         hudBatch.begin();
 
         float screenH = Gdx.graphics.getHeight();
@@ -253,10 +253,47 @@ public class GamemodeDemo {
 
         float buttonH = screenH / 6.75f;
         float buttonW = screenW / 4;
-        float btnY = Gdx.graphics.getHeight()/2 - buttonH/2;
+        float btnY = screenH/2 - buttonH/2;
+        float btnX1 = screenW/3 - buttonW/2;
+        float btnX2 = screenW*2/3 - buttonW/2;
+        float btnX3 = screenW*2/3 - buttonH/2;
+
+        hudBatch.draw(texBtnMenu, btnX1, btnY, buttonW, buttonH);
+        hudBatch.draw(texBtnPlay, btnX2, btnY, buttonW, buttonH);
+        hudBatch.draw(texBtnSet, screenW - buttonH*3/2, buttonH/2 , buttonH, buttonH);
+
+        float x = Gdx.input.getX();
+        float y = Gdx.input.getY();
+
+        if(y > btnY  && y < btnY + buttonH){
+            if(x > btnX1 && x < btnX1 + buttonW){
+                hudBatch.draw(texBtnMenuSel, btnX1, btnY, buttonW, buttonH);
+                if(Gdx.input.justTouched()){
+                    hudBatch.end();
+                    return 1;
+                }
+            } else if (x > btnX2 && x < btnX2 + buttonW){
+                hudBatch.draw(texBtnPlaySel, btnX2, btnY, buttonW, buttonH);
+                if(Gdx.input.justTouched()){
+                    hudBatch.end();
+                    return 2;
+                }
+            }
+        }
+
+        else if(y < screenH - buttonH/2 && y > screenH - (buttonH/2+buttonH)){
+            if(x > screenW - buttonH*3/2 && x < screenW - buttonH/2){
+                hudBatch.draw(texBtnSetSel, screenW - buttonH*3/2, buttonH/2 , buttonH, buttonH);
+                if(Gdx.input.justTouched()){
+                    hudBatch.end();
+                    return 3;
+                }
+            }
+        }
 
 
         hudBatch.end();
+        return 0;
     }
 
 
