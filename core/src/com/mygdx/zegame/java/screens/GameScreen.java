@@ -75,10 +75,12 @@ public class GameScreen implements Screen, MouseWheelListener{
         //Init gamemode
         gamemodeDemo = new GamemodeDemo(circlePlayer, universe);
 
+
         //Init main sound track
         mainloopId = SoundSingleton.getInstance().mainLoop.loop(0.30f);
 
         Gdx.input.setInputProcessor(new InputProcessorWS(circlePlayer));
+        System.out.println("[GameScreen] Screen and game have loaded.");
     }
 
     @Override
@@ -114,8 +116,8 @@ public class GameScreen implements Screen, MouseWheelListener{
 
         //If
         if (cameraType == CameraType.PLAYER) {
-            //centerCameraOnPlayer();
-            cameraFollowSmooth();
+            centerCameraOnPlayer();
+            //cameraFollowSmooth();
         }
 
         if(isPaused){
@@ -195,7 +197,7 @@ public class GameScreen implements Screen, MouseWheelListener{
         cam.up.set(0, -1, 0);
         cam.position.set(circlePlayer.getX(), circlePlayer.getY(), 0);
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
-        cam.zoom = ((20f * 40f) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
+        cam.zoom = ((Constants.DEFAULT_PLAYER_SIZE * 40f) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
     }
 
     private void cameraFollowSmooth() {
@@ -221,7 +223,7 @@ public class GameScreen implements Screen, MouseWheelListener{
 
         cam.up.set(0, -1, 0);
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
-        cam.zoom = ((20f * 40f) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
+        cam.zoom = ((Constants.DEFAULT_PLAYER_SIZE * 40f) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
     }
 
     /*
