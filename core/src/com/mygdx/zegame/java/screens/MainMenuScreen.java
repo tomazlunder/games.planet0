@@ -8,37 +8,24 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.zegame.java.GameClass;
+import com.mygdx.zegame.java.input.Button;
 import com.mygdx.zegame.java.sound.SoundSingleton;
 
+import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MainMenuScreen implements Screen {
 
     Texture texture_bg = new Texture("menus/main/menu_screen.png");
-    Texture texPlay = new Texture("menus/main/plays_btn.png");
-    Texture texPlaySel = new Texture("menus/main/plays_btn_sel.png");
-
-    Texture texScore = new Texture("menus/main/scores_btn.png");
-    Texture texScoreSel = new Texture("menus/main/scores_btn_sel.png");
-
-    Texture texSettings = new Texture("menus/main/settings_btn.png");
-    Texture texSettingsSel = new Texture("menus/main/settings_btn_sel.png");
-
-    Texture texExit = new Texture("menus/main/exit_btn.png");
-    Texture texExitSel = new Texture("menus/main/exit_btn_sel.png");
 
     //FOR EASY DISPOSAL
-    final Texture[] texArray = new Texture[]{texPlay, texPlaySel, texScore, texScoreSel, texSettings, texSettingsSel, texExit, texExitSel, texture_bg};
-
     float fromLeftEdge;
-
-    final float CLICK_TO = 0.1f;
-    float clickTo;
 
     float screenW, screenH;
     float buttonW, buttonH;
-
-    boolean[] buttonsActive;
+    List<Button> buttons;
 
     OrthographicCamera camera;
 
@@ -55,7 +42,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void show() {
-        this.buttonsActive = new boolean[]{false, false, false, false};
+        this.buttons = new ArrayList<Button>();
 
         this.screenH = Gdx.graphics.getHeight();
         this.screenW = Gdx.graphics.getWidth();
@@ -65,8 +52,11 @@ public class MainMenuScreen implements Screen {
         this.buttonH = screenH / 6.75f;
         this.buttonW = screenW / 4;
 
-        //To Dispose
-        this.clickTo = CLICK_TO;
+        buttons.add(new Button(fromLeftEdge,screenH * 65/100,buttonW,buttonH,"menus/main/plays_btn.png","menus/main/plays_btn_sel.png"));
+        buttons.add(new Button(fromLeftEdge,screenH * 45/100,buttonW,buttonH,"menus/main/scores_btn.png","menus/main/scores_btn_sel.png"));
+        buttons.add(new Button(fromLeftEdge,screenH * 25/100,buttonW,buttonH,"menus/main/settings_btn.png","menus/main/settings_btn_sel.png"));
+        buttons.add(new Button(fromLeftEdge,screenH * 5/100,buttonW,buttonH,"menus/main/exit_btn.png","menus/main/exit_btn_sel.png"));
+
 
         this.camera = new OrthographicCamera(screenW, screenH);
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
@@ -99,33 +89,14 @@ public class MainMenuScreen implements Screen {
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+
         game.spriteBatch.begin();
 
         game.spriteBatch.draw(texture_bg, 0, 0, screenW, screenH);
 
-        if (buttonsActive[0]) {
-            game.spriteBatch.draw(texPlaySel, fromLeftEdge, 65 * screenH / 100, buttonW, buttonH);
-        } else {
-            game.spriteBatch.draw(texPlay, fromLeftEdge, 65 * screenH / 100, buttonW, buttonH);
-        }
-
-        if (buttonsActive[1]) {
-            game.spriteBatch.draw(texScoreSel, fromLeftEdge, 45 * screenH / 100, buttonW, buttonH);
-        } else {
-            game.spriteBatch.draw(texScore, fromLeftEdge, 45 * screenH / 100, buttonW, buttonH);
-        }
-
-        if (buttonsActive[2]) {
-            game.spriteBatch.draw(texSettingsSel, fromLeftEdge, 25 * screenH / 100, buttonW, buttonH);
-
-        } else {
-            game.spriteBatch.draw(texSettings, fromLeftEdge, 25 * screenH / 100, buttonW, buttonH);
-        }
-
-        if (buttonsActive[3]) {
-            game.spriteBatch.draw(texExitSel, fromLeftEdge, 5 * screenH / 100, buttonW, buttonH);
-        } else {
-            game.spriteBatch.draw(texExit, fromLeftEdge, 5 * screenH / 100, buttonW, buttonH);
+        for(Button b : buttons){
+            b.draw(game.spriteBatch);
         }
 
         game.spriteBatch.end();
@@ -154,8 +125,9 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void dispose() {
-        for(Texture t : texArray){
-            t.dispose();
+        texture_bg.dispose();
+        for(Button b : buttons){
+            b.dispose();
         }
     }
 
@@ -170,50 +142,27 @@ public class MainMenuScreen implements Screen {
             playClicked();
         }
 
-        boolean[] last = buttonsActive.clone();
-        Arrays.fill(buttonsActive, false);
-
         float x = Gdx.input.getX();
         float y = Gdx.input.getY();
-        y = screenH - y;
 
-        if (x >= fromLeftEdge && x < fromLeftEdge + buttonW) {
-            if (y > 65 * screenH / 100 && y < 65 * screenH / 100 + buttonH) {
-                buttonsActive[0] = true;
-            } else if (y > 45 * screenH / 100 && y < 45 * screenH / 100 + buttonH) {
-                buttonsActive[1] = true;
-            } else if (y > 25 * screenH / 100 && y < 25 * screenH / 100 + buttonH) {
-                buttonsActive[2] = true;
-            } else if (y > 5 * screenH / 100 && y < 5 * screenH / 100 + buttonH) {
-                buttonsActive[3] = true;
-            }
+        //Button state (mouse over or not update)
+        for(Button b : buttons){
+            b.updateMouse(x,screenH - y);
         }
 
-        //Mouse over button sound
-        if(!Arrays.equals(buttonsActive,last)){
-            boolean atLeastOneTrue = false;
-            for(boolean b : buttonsActive){
-                if(b) atLeastOneTrue = true;
-            }
-            if(atLeastOneTrue){
-                SoundSingleton.getInstance().menuSelect.play();
-            }
-        }
-
-        if (clickTo > 0) {
-            clickTo -= deltaTime;
-        }
-
-        if (Gdx.input.isTouched() && clickTo <= 0) {
-            clickTo = CLICK_TO;
-            if (buttonsActive[0]) {
-                playClicked();
-            }
-            if (buttonsActive[3]) {
-                exitClicked();
+        //Button click handling
+        if(Gdx.input.justTouched()){
+            for(int i = 0; i < buttons.size(); i++){
+                if(buttons.get(i).isActive){
+                    switch(i){
+                        case 0: playClicked(); break;
+                        case 1: scoresClicked(); break;
+                        case 2: settingsClicked(); break;
+                        case 3: exitClicked(); break;
+                    }
+                }
             }
         }
-
     }
 
     private void playClicked() {

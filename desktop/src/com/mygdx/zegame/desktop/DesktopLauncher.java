@@ -14,15 +14,17 @@ public class DesktopLauncher  {
 		config.title = "zeGame";
 		config.width = 1680;
 		config.height = 980;
-		config.resizable = true;
+		config.resizable = false;
+
 
 		//Cool mode
-		/*
+
 		config.width = 1920;
 		config.height = 1080;
 		config.fullscreen = true;
-		*/
+
 
 		app = new LwjglApplication(new GameClass(), config);
 	}
+
 }

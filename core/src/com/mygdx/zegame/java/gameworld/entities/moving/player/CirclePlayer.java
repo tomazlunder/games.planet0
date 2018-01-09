@@ -89,7 +89,7 @@ public class CirclePlayer extends MovingEntity {
 
 
     public CirclePlayer(float radius, Planet planet, OrthographicCamera camera){
-        super(planet.getX(),planet.getY()+planet.getRadius()+radius,radius,planet);
+        super(planet.getX(),planet.getY()+planet.getRadius()+radius*2,radius,planet);
         this.center = new Vector2(planet.getX(), planet.getY()+planet.getRadius()+radius);
         this.radius = radius;
         this.maxSpeed = DEFAULT_MAX_SPEED;

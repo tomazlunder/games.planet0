@@ -8,6 +8,6 @@ public class Constants {
     public static final int DEFAULT_CAM_SPEED = 3;
     public static final float DEDAULT_CAM_ROT_SPEED = 0.5f;
 
-    public static final float DEFAULT_PLAYER_SIZE = 20;
+    public static final float DEFAULT_PLAYER_SIZE = 25;
 
 }

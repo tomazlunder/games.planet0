@@ -15,6 +15,7 @@ import com.mygdx.zegame.java.gameworld.entities.nonmoving.CircleFire;
 import com.mygdx.zegame.java.gameworld.entities.nonmoving.NorthPole;
 import com.mygdx.zegame.java.gameworld.entities.nonmoving.PickupShield;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
+import com.mygdx.zegame.java.input.Button;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,9 @@ public class GamemodeDemo {
     private Texture topUnderlay;
 
     private Texture texPaused, texBtnMenu, texBtnMenuSel, texBtnPlay, texBtnPlaySel, texBtnSet,texBtnSetSel;
+
+    private List<Button> pausedButtons;
+
 
 
     Planet fp;
@@ -72,13 +76,20 @@ public class GamemodeDemo {
 
         //PAUSED
         texPaused = new Texture("menus/paused/paused_overlay.png");
-        texBtnMenu = new Texture("menus/paused/menu_btn.png");
-        texBtnMenuSel = new Texture("menus/paused/menu_btn_sel.png");
-        texBtnPlay = new Texture("menus/paused/play_btn.png");
-        texBtnPlaySel = new Texture("menus/paused/play_btn_sel.png");
-        texBtnSet = new Texture("menus/paused/set_ico.png");
-        texBtnSetSel = new Texture("menus/paused/set_ico_sel.png");
 
+        float screenH = Gdx.graphics.getHeight();
+        float screenW = Gdx.graphics.getWidth();
+        float buttonH = screenH / 6.75f;
+        float buttonW = screenW / 4;
+        float btnY = screenH/2 - buttonH/2;
+        float btnX1 = screenW/3 - buttonW/2;
+        float btnX2 = screenW*2/3 - buttonW/2;
+        float btnX3 = screenW*2/3 - buttonH/2;
+
+        pausedButtons = new ArrayList<Button>();
+        pausedButtons.add(new Button(btnX1,btnY, buttonW, buttonH,"menus/paused/menu_btn.png","menus/paused/menu_btn_sel.png"));
+        pausedButtons.add(new Button(btnX2,btnY, buttonW, buttonH,"menus/paused/play_btn.png","menus/paused/play_btn_sel.png"));
+        pausedButtons.add(new Button(screenW - buttonH*3/2,buttonH/2, buttonH, buttonH,"menus/paused/set_ico.png","menus/paused/set_ico_sel.png"));
 
 
         //Gamemode specific
@@ -250,52 +261,24 @@ public class GamemodeDemo {
 
         hudBatch.draw(texPaused,0,0,screenW,screenH);
 
+        for(Button b: pausedButtons){
+            b.updateMouse(Gdx.input.getX(), screenH - Gdx.input.getY());
+            b.draw(hudBatch);
+        }
 
-        float buttonH = screenH / 6.75f;
-        float buttonW = screenW / 4;
-        float btnY = screenH/2 - buttonH/2;
-        float btnX1 = screenW/3 - buttonW/2;
-        float btnX2 = screenW*2/3 - buttonW/2;
-        float btnX3 = screenW*2/3 - buttonH/2;
-
-        hudBatch.draw(texBtnMenu, btnX1, btnY, buttonW, buttonH);
-        hudBatch.draw(texBtnPlay, btnX2, btnY, buttonW, buttonH);
-        hudBatch.draw(texBtnSet, screenW - buttonH*3/2, buttonH/2 , buttonH, buttonH);
+        hudBatch.end();
 
         float x = Gdx.input.getX();
         float y = Gdx.input.getY();
 
-        if(y > btnY  && y < btnY + buttonH){
-            if(x > btnX1 && x < btnX1 + buttonW){
-                hudBatch.draw(texBtnMenuSel, btnX1, btnY, buttonW, buttonH);
-                if(Gdx.input.justTouched()){
-                    hudBatch.end();
-                    return 1;
-                }
-            } else if (x > btnX2 && x < btnX2 + buttonW){
-                hudBatch.draw(texBtnPlaySel, btnX2, btnY, buttonW, buttonH);
-                if(Gdx.input.justTouched()){
-                    hudBatch.end();
-                    return 2;
+        if(Gdx.input.justTouched()) {
+            for (int i = 0; i < pausedButtons.size(); i++) {
+                if(pausedButtons.get(i).isActive){
+                    return i;
                 }
             }
         }
 
-        else if(y < screenH - buttonH/2 && y > screenH - (buttonH/2+buttonH)){
-            if(x > screenW - buttonH*3/2 && x < screenW - buttonH/2){
-                hudBatch.draw(texBtnSetSel, screenW - buttonH*3/2, buttonH/2 , buttonH, buttonH);
-                if(Gdx.input.justTouched()){
-                    hudBatch.end();
-                    return 3;
-                }
-            }
-        }
-
-
-        hudBatch.end();
-        return 0;
+        return -1;
     }
-
-
-
 }

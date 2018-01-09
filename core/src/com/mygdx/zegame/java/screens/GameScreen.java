@@ -18,11 +18,13 @@ import com.mygdx.zegame.java.gameworld.Universe;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.gameworld.planets.FirstPlanet;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
+import com.mygdx.zegame.java.input.Button;
 import com.mygdx.zegame.java.input.InputProcessorWS;
 import com.mygdx.zegame.java.sound.SoundSingleton;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.List;
 
 public class GameScreen implements Screen, MouseWheelListener{
 
@@ -122,10 +124,10 @@ public class GameScreen implements Screen, MouseWheelListener{
 
         if(isPaused){
             int mouse = gamemodeDemo.drawPausedScreenAndMouseCmd();
-            if(mouse == 1){
+            if(mouse == 0){
                 ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
             }
-            if(mouse ==2){
+            if(mouse ==1){
                 isPaused = false;
             }
         } else {
