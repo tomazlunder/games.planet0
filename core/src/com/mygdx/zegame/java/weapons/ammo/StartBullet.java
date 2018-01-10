@@ -36,7 +36,7 @@ public class StartBullet extends Entity{
 
         this.center = newPos;
         //System.out.println(this.center.toString());
-        System.out.println(dist_traveled);
+        //System.out.println(dist_traveled);
 
         if(dist_traveled > range){
             this.removeFromPlanet();

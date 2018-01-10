@@ -1,7 +1,6 @@
 package com.mygdx.zegame.java.gameworld.planets;
 
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -18,35 +17,38 @@ public class FirstPlanet extends Planet {
     private Texture textureSky;
 
     private Texture textureSkyDN;
-    private Sprite spriteSkyDN, spriteSkyBG;
+    private Sprite spriteSkyDN, spriteSkyBG, spriteClouds;
 
-    float weatherRotation;
+    float dayNighRotation;
 
     public FirstPlanet(Universe universe) {
-        super(universe,universe.getSize() / 2, universe.getSize() / 2, universe.getSize()/10);
+        super(universe,universe.getSize() / 2, universe.getSize() / 2, universe.getSize()/4);
 
         this.texLU = new Texture("world8KqLU_p2.png");
         this.texLD = new Texture("world8KqLD_p2.png");
         this.texRU = new Texture("world8KqRU_p2.png");
         this.texRD = new Texture("world8KqRD_p2.png");
 
-        texLU.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        texLU.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Linear);
         texLD.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         texRU.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         texRD.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
+
+
         //this.textureSky = new Texture("sprites/world/sky2.png");
+        this.spriteClouds = new Sprite(new Texture("sprites/world/sky_clouds3.png"));
         this.spriteSkyBG = new Sprite(new Texture("sprites/world/sky_art1_c.png"));
         this.spriteSkyDN = new Sprite(new Texture("sprites/world/night2_c.png"));
 
-        weatherRotation = 0;
+        dayNighRotation = 0;
     }
 
     @Override
     public void update(float deltaTime){
         super.update(deltaTime);
 
-        weatherRotation = deltaTime;
+        dayNighRotation = deltaTime;
     }
 
     @Override
@@ -59,10 +61,9 @@ public class FirstPlanet extends Planet {
         spriteSkyBG.setSize(4*planetRadius, 4* planetRadius);
         spriteSkyBG.setPosition(circleShape.center.x - 2f*planetRadius,circleShape.center.y - 2f*planetRadius);
         spriteSkyBG.setOrigin(spriteSkyBG.getWidth()/2, spriteSkyBG.getHeight()/2);
-        spriteSkyBG.rotate(weatherRotation);
+        spriteSkyBG.rotate(dayNighRotation);
 
         spriteSkyBG.draw(spriteBatch);
-
 
         spriteBatch.draw(texLU, circleShape.center.x - planetRadius, circleShape.center.y, planetRadius, planetRadius);
         spriteBatch.draw(texLD, circleShape.center.x - planetRadius, circleShape.center.y - planetRadius, planetRadius, planetRadius);
@@ -84,17 +85,25 @@ public class FirstPlanet extends Planet {
             e.draw(spriteBatch);
         }
 
+        spriteClouds.setAlpha(0.5f);
+
+        spriteClouds.setSize(4*planetRadius, 4* planetRadius);
+        spriteClouds.setPosition(circleShape.center.x - 2f*planetRadius,circleShape.center.y - 2f*planetRadius);
+        spriteClouds.setOrigin(spriteSkyDN.getWidth()/2, spriteSkyDN.getHeight()/2);
+        spriteClouds.rotate(dayNighRotation/3);
+
         spriteSkyDN.setAlpha(0.8f);
 
         spriteSkyDN.setSize(4*planetRadius, 4* planetRadius);
         spriteSkyDN.setPosition(circleShape.center.x - 2f*planetRadius,circleShape.center.y - 2f*planetRadius);
         spriteSkyDN.setOrigin(spriteSkyDN.getWidth()/2, spriteSkyDN.getHeight()/2);
-        spriteSkyDN.rotate(weatherRotation);
+        spriteSkyDN.rotate(dayNighRotation);
 
-        weatherRotation = 0;
+        dayNighRotation = 0;
 
         spriteBatch.begin();
 
+        spriteClouds.draw(spriteBatch);
         spriteSkyDN.draw(spriteBatch);
         spriteBatch.end();
 

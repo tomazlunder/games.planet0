@@ -330,7 +330,7 @@ public class CirclePlayer extends MovingEntity {
         }
         if(this.inJump){
             trLegs = ta.findRegion(LEG_JUMP);
-            trFace = ta.findRegion(FACE_JUMP);
+           // trFace = ta.findRegion(FACE_JUMP);
         }
 
         spriteLegs.setRegion(trLegs);
@@ -355,7 +355,7 @@ public class CirclePlayer extends MovingEntity {
     }
 
     public void drawBody(SpriteBatch spriteBatch){
-        //trBody = ta.findRegion(BODY_ANIMATION.get(currentFrame%BODY_ANIMATION.size()));
+        trBody = ta.findRegion(BODY_ANIMATION.get(currentFrame%BODY_ANIMATION.size()));
         trBody = ta.findRegion("body1");
 
         spriteBody.setRegion(trBody);
@@ -395,7 +395,7 @@ public class CirclePlayer extends MovingEntity {
     private Vector2 getArmCenterPosition(){
         Vector2 diff = new Vector2(0,0);
 
-        if(movingDirection == 0 || inJump){
+        if(movingDirection == 0 ){ //|| inJump){
             diff = this.leftUnit.cpy().scl(this.radius*4/5);
         }
 

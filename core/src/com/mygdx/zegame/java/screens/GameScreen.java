@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -57,6 +58,10 @@ public class GameScreen implements Screen, MouseWheelListener{
 
     @Override
     public void show() {
+        Pixmap pm = new Pixmap(Gdx.files.internal("sprites/cursors/cursor1.png"));
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, pm.getWidth()/2, pm.getHeight()/2));
+        pm.dispose();
+
         isPaused = false;
         tick = 0;
         drawMode = Constants.DEFAULT_DRAW_MODE;
