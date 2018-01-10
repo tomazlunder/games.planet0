@@ -30,7 +30,7 @@ public abstract class Entity implements BasicCollision{
         this.baseCollision = new CircleShape(x,y,radius);
         this.nearestPlanet = planet;
 
-        //this.nearestPlanet.entities.add(this);
+        this.nearestPlanet.entities.add(this);
 
         calculateRotationFromCenter();
     }
@@ -95,6 +95,10 @@ public abstract class Entity implements BasicCollision{
 
     public boolean isGrounded(){
         return (heigthFromGround() < GROUNDED_ERROR);
+    }
+
+    public void removeFromPlanet(){
+        this.nearestPlanet.toRemoveFromEntities.add(this);
     }
 
 

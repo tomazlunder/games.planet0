@@ -98,20 +98,20 @@ public class GamemodeDemo {
         this.circlePlayer = circlePlayer;
 
         fp = universe.planets.get(0);
-        fp.entities.add(circlePlayer);
+        //fp.entities.add(circlePlayer);
 
         fires = new ArrayList<Entity>();
         CircleFire cs = new CircleFire(fp.getX()-fp.getRadius()-5f,fp.getY(),10f,fp);
         fires.add(cs);
-        fp.entities.add(cs);  //Drawn with wordld
+        //fp.entities.add(cs);  //Drawn with wordld
 
         shieldPickups = new ArrayList<Entity>();
         PickupShield ps = new PickupShield(0, fp);
         shieldPickups.add(ps);
-        fp.entities.add(ps);
+        //fp.entities.add(ps);
 
         NorthPole np = new NorthPole(fp);
-        fp.entities.add(np);
+        //fp.entities.add(np);
     }
 
     public void update(float deltaTime){

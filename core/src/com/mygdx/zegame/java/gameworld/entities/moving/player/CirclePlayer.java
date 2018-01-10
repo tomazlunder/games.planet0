@@ -26,7 +26,7 @@ public class CirclePlayer extends MovingEntity {
     //Player physics
     private float DEFAULT_MAX_HORIZONTAL_SPEED = 8f;
     private float DEFAULT_MAX_SPEED = 15;
-    private float DEFAULT_JUMP_ACC = 2.7f;
+    private float DEFAULT_JUMP_ACC = 4;
     private float DEFAULT_MAX_ACC = 2;
     private float DEFAULT_JUMP_TIMEOUT = 0.5f;
     private float DEFAULT_ACC_STEP = DEFAULT_MAX_ACC/10;
@@ -174,7 +174,7 @@ public class CirclePlayer extends MovingEntity {
 
 
         //If the player is on the ground and has negative acceleration, his acceleration becomes 0
-        if(isGrounded() && !inJump){
+        if(isGrounded() && !inJump && this.acceleration.y < 0){
             this.acceleration.y = 0;
             this.speed.y = 0;
         }
@@ -390,10 +390,7 @@ public class CirclePlayer extends MovingEntity {
         if(isGrounded()){airtime=0;}
     }
 
-    @Override
-    public boolean isGrounded(){
-        return (heigthFromGround() < legHeight);
-    }
+
 
     private Vector2 getArmCenterPosition(){
         Vector2 diff = new Vector2(0,0);
@@ -462,7 +459,8 @@ public class CirclePlayer extends MovingEntity {
     public void fireWeapon(){
         if(weapons[selectedWeapon] != null){
             if(weapons[selectedWeapon].shoot()){
-                nearestPlanet.entities.add(new StartBullet(getGunTipPosition(),Commons.vec3to2(aimingAt),nearestPlanet));
+                //nearestPlanet.entities.add(new StartBullet(getGunTipPosition(),Commons.vec3to2(aimingAt),nearestPlanet));
+                new StartBullet(getGunTipPosition(),Commons.vec3to2(aimingAt),nearestPlanet);
             }
         }
     }
@@ -471,6 +469,24 @@ public class CirclePlayer extends MovingEntity {
         if(weapons[selectedWeapon] != null){
             weapons[selectedWeapon].reload(1000);
         }
+    }
+
+    @Override
+    public float distanceFromCenter()
+    {
+        if(nearestPlanet == null){
+            return -1;
+        }
+        return center.dst(nearestPlanet.getPosition());
+    }
+
+    @Override
+    public boolean isGrounded(){
+        return (heigthFromGround() < legHeight);
+    }
+
+    public float heigthFromGround(){
+        return (distanceFromCenter()-(nearestPlanet.getRadius()+radius+this.legHeight));
     }
 
     //String

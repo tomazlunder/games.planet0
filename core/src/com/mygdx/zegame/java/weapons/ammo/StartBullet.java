@@ -20,7 +20,7 @@ public class StartBullet extends Entity{
     public StartBullet(Vector2 from, Vector2 to, Planet planet){
         super(from.x,from.y,3, planet);
 
-        range = 100 * 100;
+        range = 1000;
         dist_traveled = 0;
 
         texture = new Texture("bullet.png");
@@ -32,9 +32,16 @@ public class StartBullet extends Entity{
     public void update(float deltaTime) {
         Vector2 newPos = this.center;
         newPos.add(direction.cpy().scl(deltaTime*1200));
+        dist_traveled += direction.cpy().scl(deltaTime*1200).len();
+
         this.center = newPos;
-        dist_traveled += deltaTime;
         //System.out.println(this.center.toString());
+        System.out.println(dist_traveled);
+
+        if(dist_traveled > range){
+            this.removeFromPlanet();
+            System.out.println("[StartBullet] removed.");
+        }
     }
 
     @Override

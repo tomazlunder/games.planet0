@@ -17,12 +17,15 @@ public abstract class Planet implements BasicCollision{
     protected Universe universe;
 
     public List<Entity> entities;
+    public List<Entity> toRemoveFromEntities;
 
     public Planet(Universe universe, float x, float y, float radius){
         this.universe = universe;
         circleShape = new CircleShape(x,y,radius);
 
         this.entities = new ArrayList<Entity>();
+        this.toRemoveFromEntities = new ArrayList<Entity>();
+
     }
 
     @Override
@@ -67,8 +70,11 @@ public abstract class Planet implements BasicCollision{
     abstract public void draw(ShapeRenderer shapeRenderer);
 
     public void update(float deltaTime){
+        toRemoveFromEntities = new ArrayList<Entity>();
         for(Entity e : entities){
             e.update(deltaTime);
         }
+
+        entities.removeAll(toRemoveFromEntities);
     }
 }
