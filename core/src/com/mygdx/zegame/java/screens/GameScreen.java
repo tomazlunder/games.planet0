@@ -350,7 +350,9 @@ public class GameScreen implements Screen, MouseWheelListener{
         }
 
         if (Gdx.input.justTouched()){
-            circlePlayer.fireWeapon();
+            if(circlePlayer.aimingAt.dst(new Vector3(circlePlayer.getX(), circlePlayer.getY(), circlePlayer.aimingAt.z)) > circlePlayer.getRadius() * Constants.GUN_TIP_CONST) {
+                circlePlayer.fireWeapon();
+            }
         }
 
         Vector3 cursorPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);

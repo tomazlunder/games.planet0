@@ -266,7 +266,7 @@ public class CirclePlayer extends MovingEntity {
     //DRAW WITH SPRITES
     public void draw(SpriteBatch spriteBatch){
         spriteBatch.begin();
-        drawAiming(spriteBatch);
+        //drawAiming(spriteBatch);
 
         if(movingDirection == -1){
             drawSelectedWeapon(spriteBatch);
@@ -405,6 +405,12 @@ public class CirclePlayer extends MovingEntity {
         return  this.center.cpy().add(diff);
     }
 
+    private Vector2 getGunTipPosition(){
+        Vector2 unitToBarrel = Commons.unitBetweenTwo(getArmCenterPosition(),Commons.vec3to2(aimingAt));
+        unitToBarrel.setLength(this.radius*Constants.GUN_TIP_CONST);
+        return getArmCenterPosition().add(unitToBarrel);
+    }
+
     private Vector2 getSelectedWeaponPos(){
         Vector2 result = getArmCenterPosition();
         result.x-= weapons[selectedWeapon].sprite.getWidth()/2;
@@ -456,7 +462,7 @@ public class CirclePlayer extends MovingEntity {
     public void fireWeapon(){
         if(weapons[selectedWeapon] != null){
             if(weapons[selectedWeapon].shoot()){
-                nearestPlanet.entities.add(new StartBullet(getArmCenterPosition().x,getArmCenterPosition().y,nearestPlanet,Commons.unitBetweenTwo(getArmCenterPosition(),Commons.vec3to2(aimingAt))));
+                nearestPlanet.entities.add(new StartBullet(getGunTipPosition(),Commons.vec3to2(aimingAt),nearestPlanet));
             }
         }
     }

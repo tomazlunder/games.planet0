@@ -13,4 +13,6 @@ public class Constants {
     public static final float TIME_BETWEEN_STEP_SOUNDS = 0.15f;
     public static final float TIME_BETWEEN_STEP_SOUNDS_RANDOM_MAX = 0.05f;
 
+    public static final float GUN_TIP_CONST = 1f;
+
 }

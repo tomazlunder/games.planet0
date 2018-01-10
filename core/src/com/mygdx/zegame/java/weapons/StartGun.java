@@ -13,7 +13,7 @@ public class StartGun extends Weapon {
 
         this.sprite = new Sprite(new Texture("sprites/weapons/gun.png"),256,256);
         this.icon = new Texture("sprites/weapons/gun_icon.png");
-        this.magSize = 7;
+        this.magSize = 50;
         this.magAmmoLeft = magSize;
 
         this.timeBetweenShots = 0.01f;

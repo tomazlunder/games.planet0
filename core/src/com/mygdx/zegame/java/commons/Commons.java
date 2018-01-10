@@ -30,7 +30,7 @@ public class Commons {
     public static float angleBetweenPoints(Vector2 v1, Vector2 v2){
         float dx = v1.x  - v2.x;
         float dy = v1.y - v2.y;
-        return MathUtils.radiansToDegrees*MathUtils.atan2(dy, dx);
+        return MathUtils.radiansToDegrees*MathUtils.atan2(dy, dx)%360;
     }
 
     public static double randomWithRange(double min, double max)
