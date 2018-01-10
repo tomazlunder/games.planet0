@@ -16,6 +16,7 @@ import com.mygdx.zegame.java.sound.SoundSingleton;
 import com.mygdx.zegame.java.weapons.AmmoEnum;
 import com.mygdx.zegame.java.weapons.StartGun;
 import com.mygdx.zegame.java.weapons.Weapon;
+import com.mygdx.zegame.java.weapons.ammo.StartBullet;
 
 import java.util.Arrays;
 import java.util.List;
@@ -304,7 +305,7 @@ public class CirclePlayer extends MovingEntity {
 
     private void drawAiming(SpriteBatch spriteBatch){
         if(aimingAt != null) {
-            //Commons.drawLine(spriteBatch, getArmCenterPosition(), Commons.vec3to2(aimingAt));
+            Commons.drawLine(spriteBatch, getArmCenterPosition(), Commons.vec3to2(aimingAt));
         }
     }
 
@@ -454,7 +455,9 @@ public class CirclePlayer extends MovingEntity {
 
     public void fireWeapon(){
         if(weapons[selectedWeapon] != null){
-            weapons[selectedWeapon].shoot();
+            if(weapons[selectedWeapon].shoot()){
+                nearestPlanet.entities.add(new StartBullet(getArmCenterPosition().x,getArmCenterPosition().y,nearestPlanet,Commons.unitBetweenTwo(getArmCenterPosition(),Commons.vec3to2(aimingAt))));
+            }
         }
     }
 

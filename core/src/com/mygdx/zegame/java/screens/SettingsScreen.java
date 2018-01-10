@@ -1,15 +1,14 @@
 package com.mygdx.zegame.java.screens;
 
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.zegame.java.GameClass;
 import com.mygdx.zegame.java.input.Button;
 import com.mygdx.zegame.java.input.SettingBar;
+import com.mygdx.zegame.java.settings.DefaultVolumeSettings;
+import com.mygdx.zegame.java.sound.SoundSingleton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,9 +47,14 @@ public class SettingsScreen implements Screen {
         background = new Texture("menus/settings/settingsBG.png");
 
 
-        bars.add(new SettingBar("Menu music volume", 0, 100, fromLeftEdge, screenH * 65/100, buttonW, barH));
-        bars.add(new SettingBar("Game music volume", 0, 100, fromLeftEdge, screenH * 55/100, buttonW, barH));
-        bars.add(new SettingBar("Game FX volume", 0, 100, fromLeftEdge, screenH * 45/100, buttonW, barH));
+
+        float menu_volume_percentage = SoundSingleton.getInstance().menuMusic.getVolume()/ DefaultVolumeSettings.MENU_MUSIC_MAX_VOLUME;
+        float game_volume_percentage = SoundSingleton.getInstance().gameMusic.getVolume()/ DefaultVolumeSettings.GAME_MUSIC_MAX_VOLUME;
+
+
+        bars.add(new SettingBar("Menu music volume", 0, 100,menu_volume_percentage*100, fromLeftEdge, screenH * 65/100, buttonW, barH));
+        bars.add(new SettingBar("Game music volume", 0, 100,game_volume_percentage*100, fromLeftEdge, screenH * 55/100, buttonW, barH));
+        bars.add(new SettingBar("Game FX volume", 0, 100,50, fromLeftEdge, screenH * 45/100, buttonW, barH));
 
         buttons.add(new Button(screenW * 10/100,screenH * 10/100, buttonW, buttonH, "menus/settings/back_btn.png","menus/settings/back_btn_sel.png"));
         buttons.add(new Button(screenW - (screenW * 10/100) - buttonW,screenH * 10/100, buttonW, buttonH, "menus/settings/save_btn.png","menus/settings/save_btn_sel.png"));
@@ -101,7 +105,7 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        this.background.dispose();
     }
 
     public void handleInputs(){
@@ -121,6 +125,8 @@ public class SettingsScreen implements Screen {
                     //back
                     case 0: ScreenManager.getInstance().closeAndContinue(); break;
                     //save
+                    case 1:
+                        SoundSingleton.getInstance().saveVolumesAndSet(bars.get(0).getPercentage(), bars.get(1).getPercentage());break;
                 }
             }
             i++;

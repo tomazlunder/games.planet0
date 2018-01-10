@@ -18,8 +18,6 @@ public class GameClass extends Game {
     public SpriteBatch spriteBatch;
     public ShapeRenderer shapeRenderer;
 
-    Preferences prefs;
-
 
     @Override
     public void create() {
@@ -29,6 +27,7 @@ public class GameClass extends Game {
         ScreenManager.getInstance().initialize(this);
         ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
 
+        /*
         FileHandle file = Gdx.files.external("planet0/settings.dat");
         OutputStream out = null;
         try {
@@ -40,18 +39,10 @@ public class GameClass extends Game {
         } finally {
             if(out != null) try {out.close();} catch (Exception ex){System.out.println("[Stream close ex] "+ex.toString());}
         }
-
-        Preferences volumePrefs = Gdx.app.getPreferences("fri.tomazlunder.planet0.settings.volume");
+        */
 
     }
 
-    public void createPrefsIfNotExist(){
-        String fileHeader = prefs.getString("fileHeader","");
-
-        if(fileHeader == ""){
-
-        }
-    }
 
     @Override
     public void render() {

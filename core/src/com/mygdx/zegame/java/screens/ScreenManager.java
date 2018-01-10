@@ -61,11 +61,13 @@ public class ScreenManager {
         if(previous == null){
             System.out.printf("[ScreenManager] closeAndContinue: can't do that, previous = null!");
         }
-        System.out.printf("[ScreenManager] closeAndContinue: returning to previous");
 
         Screen currentScreen = game.getScreen();
         game.setScreenWOShow(previous);
         game.getScreen().resume();
+
+        System.out.println("[ScreenManager] closeAndContinue: returning to previous " + game.getScreen().toString());
+
 
         currentScreen.dispose();
         previous = null;

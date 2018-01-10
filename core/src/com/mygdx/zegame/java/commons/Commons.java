@@ -22,7 +22,7 @@ public class Commons {
         //float length = (float)Math.sqrt(dx*dx + dy*dy);
         float length = 250;
         float angle = MathUtils.radiansToDegrees*MathUtils.atan2(dy, dx);
-        System.out.println(angle);
+        //System.out.println(angle);
         angle = angle-180;
         batch.draw(red1p, v1.x, v1.y, 0f, thickness*0.5f, length, thickness, 1f, 1f, angle, 0, 0, red1p.getWidth(), red1p.getHeight(), false, false);
     }
@@ -37,5 +37,11 @@ public class Commons {
     {
         double range = (max - min);
         return (Math.random() * range) + min;
+    }
+
+    public static Vector2 unitBetweenTwo(Vector2 v1, Vector2 v2){
+        Vector2 v12 = v2.cpy().sub(v1);
+        v12.setLength(1);
+        return v12;
     }
 }

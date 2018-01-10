@@ -88,7 +88,7 @@ public class GamemodeDemo {
 
         pausedButtons = new ArrayList<Button>();
         pausedButtons.add(new Button(btnX1,btnY, buttonW, buttonH,"menus/paused/menu_btn.png","menus/paused/menu_btn_sel.png"));
-        pausedButtons.add(new Button(btnX2,btnY, buttonW, buttonH,"menus/paused/play_btn.png","menus/paused/play_btn_sel.png"));
+        pausedButtons.add(new Button(btnX2,btnY, buttonW, buttonH,"menus/paused/resume_btn.png","menus/paused/resume_btn_sel.png"));
         pausedButtons.add(new Button(screenW - buttonH*3/2,buttonH/2, buttonH, buttonH,"menus/paused/set_ico.png","menus/paused/set_ico_sel.png"));
 
 

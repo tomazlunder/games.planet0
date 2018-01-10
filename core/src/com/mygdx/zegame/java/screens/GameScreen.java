@@ -321,6 +321,7 @@ public class GameScreen implements Screen, MouseWheelListener{
                             break;
                         case 1:
                             isPaused = false;
+                            break;
                         case 2:
                             ScreenManager.getInstance().pauseAndOpen(ScreenEnum.SETTINGS);
                             break;

@@ -1,8 +1,10 @@
 package com.mygdx.zegame.java.sound;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.mygdx.zegame.java.GameClass;
 import com.mygdx.zegame.java.settings.DefaultVolumeSettings;
 
 public class SoundSingleton {
@@ -24,11 +26,9 @@ public class SoundSingleton {
         //MUSIC
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/main_loop.mp3"));
         gameMusic.setLooping(true);
-        gameMusic.setVolume(DefaultVolumeSettings.GAME_MUSIC_VOLUME);
 
         menuMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/arcade_loop.wav"));
         menuMusic.setLooping(true);
-        menuMusic.setVolume(DefaultVolumeSettings.MENU_MUSIC_VOLUME);
 
         //SOUNDS
         menuSelect = Gdx.audio.newSound(Gdx.files.internal("audio/menu_select.wav"));
@@ -39,6 +39,9 @@ public class SoundSingleton {
         gun_reload = Gdx.audio.newSound(Gdx.files.internal("audio/gun_reload.mp3"));
 
         footstep = Gdx.audio.newSound(Gdx.files.internal("audio/footstep_amp.wav"));
+
+        //
+        setVolumesFromPrefOrDefault();
     }
 
     public static SoundSingleton getInstance(){
@@ -47,6 +50,29 @@ public class SoundSingleton {
         }
         return instance;
     }
+
+    public void setVolumesFromPrefOrDefault(){
+        Preferences prefs = Gdx.app.getPreferences("fri.tomazlunder.planet0.settings.volume");
+
+        float menuPerc = prefs.getFloat("menu_volume_percentage", DefaultVolumeSettings.DEFAULT_MENU_VOL_PER);
+        float gamePerc = prefs.getFloat("game_volume_percentage",DefaultVolumeSettings.DEFAULT_GAME_VOL_PER);
+
+        menuMusic.setVolume(menuPerc * DefaultVolumeSettings.MENU_MUSIC_MAX_VOLUME);
+        gameMusic.setVolume(gamePerc * DefaultVolumeSettings.GAME_MUSIC_MAX_VOLUME);
+    }
+
+    public void saveVolumesAndSet(float menuPercentage, float gamePercentage){
+        Preferences prefs = Gdx.app.getPreferences("fri.tomazlunder.planet0.settings.volume");
+
+        prefs.putFloat("menu_volume_percentage", menuPercentage);
+        prefs.putFloat("game_volume_percentage", gamePercentage);
+
+        prefs.flush();
+
+        setVolumesFromPrefOrDefault();
+    }
+
+
 
 
 

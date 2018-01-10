@@ -55,7 +55,7 @@ public abstract class Weapon {
         return armCenterPos;
     }
 
-    public abstract void shoot();
+    public abstract boolean shoot();
 
     //updates cooldowns and such
     public void update(float deltaTime){
