@@ -3,6 +3,7 @@ package com.mygdx.zegame.java.weapons;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.zegame.java.settings.DefaultVolumeSettings;
 import com.mygdx.zegame.java.sound.SoundSingleton;
 
 public abstract class Weapon {
@@ -32,7 +33,7 @@ public abstract class Weapon {
         }
         int emptySpots = magSize - magAmmoLeft;
         if(emptySpots != 0){
-            SoundSingleton.getInstance().gun_reload.play();
+            SoundSingleton.getInstance().gun_reload.play(DefaultVolumeSettings.FX_STARTGUN_RELOAD);
 
 
             if(number >= emptySpots){

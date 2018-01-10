@@ -32,4 +32,10 @@ public class Commons {
         float dy = v1.y - v2.y;
         return MathUtils.radiansToDegrees*MathUtils.atan2(dy, dx);
     }
+
+    public static double randomWithRange(double min, double max)
+    {
+        double range = (max - min);
+        return (Math.random() * range) + min;
+    }
 }

@@ -21,6 +21,12 @@ public enum ScreenEnum {
         public Screen getScreen(GameClass game) {
             return new GameScreen(game);
         }
+    },
+
+    SETTINGS {
+        public Screen getScreen(GameClass game) {
+            return new SettingsScreen(game);
+        }
     };
 
     public abstract Screen getScreen(GameClass game);

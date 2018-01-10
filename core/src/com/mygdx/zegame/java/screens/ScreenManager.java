@@ -10,6 +10,9 @@ public class ScreenManager {
     // Reference to game
     private GameClass game;
 
+    private Screen previous;
+
+
     // Singleton: private constructor
     private ScreenManager() {
         super();
@@ -26,6 +29,7 @@ public class ScreenManager {
     // Initialization with the game class
     public void initialize(GameClass game) {
         this.game = game;
+        this.previous = null;
     }
 
     // Show in the game the screen which enum type is received
@@ -43,5 +47,27 @@ public class ScreenManager {
         if (currentScreen != null) {
             currentScreen.dispose();
         }
+    }
+
+    public void pauseAndOpen(ScreenEnum screenEnum){
+        System.out.println("[ScreenManager] Changing screen to (temp): " + screenEnum.name());
+        previous = game.getScreen();
+
+        Screen newScreen = screenEnum.getScreen(game);
+        game.setScreenWOHide(newScreen);
+    }
+
+    public void closeAndContinue(){
+        if(previous == null){
+            System.out.printf("[ScreenManager] closeAndContinue: can't do that, previous = null!");
+        }
+        System.out.printf("[ScreenManager] closeAndContinue: returning to previous");
+
+        Screen currentScreen = game.getScreen();
+        game.setScreenWOShow(previous);
+        game.getScreen().resume();
+
+        currentScreen.dispose();
+        previous = null;
     }
 }

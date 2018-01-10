@@ -1,8 +1,7 @@
 package com.mygdx.zegame.java;
 
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -11,11 +10,15 @@ import com.mygdx.zegame.java.screens.ScreenEnum;
 import com.mygdx.zegame.java.screens.ScreenManager;
 import com.mygdx.zegame.java.sound.SoundSingleton;
 
+import java.io.OutputStream;
+
 
 public class GameClass extends Game {
 
     public SpriteBatch spriteBatch;
     public ShapeRenderer shapeRenderer;
+
+    Preferences prefs;
 
 
     @Override
@@ -25,8 +28,30 @@ public class GameClass extends Game {
 
         ScreenManager.getInstance().initialize(this);
         ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+
+        FileHandle file = Gdx.files.external("planet0/settings.dat");
+        OutputStream out = null;
+        try {
+            out = file.write(false);
+            out.write(-2);
+            out.close();
+        } catch (Exception ex){
+            System.out.println("[File write ex] "+ex.toString());
+        } finally {
+            if(out != null) try {out.close();} catch (Exception ex){System.out.println("[Stream close ex] "+ex.toString());}
+        }
+
+        Preferences volumePrefs = Gdx.app.getPreferences("fri.tomazlunder.planet0.settings.volume");
+
     }
 
+    public void createPrefsIfNotExist(){
+        String fileHeader = prefs.getString("fileHeader","");
+
+        if(fileHeader == ""){
+
+        }
+    }
 
     @Override
     public void render() {
@@ -48,6 +73,24 @@ public class GameClass extends Game {
     public void handleAppUniversalInputs(){
         if(Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)){
             Gdx.app.exit();
+        }
+    }
+
+    public void setScreenWOHide(Screen screen){
+        if (this.screen != null) this.screen.pause();
+        this.screen = screen;
+        if (this.screen != null) {
+            this.screen.show();
+            this.screen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        }
+    }
+
+    public void setScreenWOShow(Screen screen){
+        if (this.screen != null) this.screen.pause();
+        this.screen = screen;
+        if (this.screen != null) {
+            this.screen.resume();
+            this.screen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         }
     }
 }

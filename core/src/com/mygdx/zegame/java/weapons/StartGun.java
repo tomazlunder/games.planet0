@@ -1,8 +1,8 @@
 package com.mygdx.zegame.java.weapons;
 
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.mygdx.zegame.java.settings.DefaultVolumeSettings;
 import com.mygdx.zegame.java.sound.SoundSingleton;
 
 public class StartGun extends Weapon {
@@ -33,7 +33,7 @@ public class StartGun extends Weapon {
             System.out.println("[StartGun] boom!");
             betweenShotsCooldown = timeBetweenShots;
             magAmmoLeft --;
-            SoundSingleton.getInstance().shoot.play();
+            SoundSingleton.getInstance().shoot.play(DefaultVolumeSettings.FX_STARTGUN_SHOT);
         }
     }
 

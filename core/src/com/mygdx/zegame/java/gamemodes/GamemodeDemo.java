@@ -38,7 +38,7 @@ public class GamemodeDemo {
 
     private Texture texPaused, texBtnMenu, texBtnMenuSel, texBtnPlay, texBtnPlaySel, texBtnSet,texBtnSetSel;
 
-    private List<Button> pausedButtons;
+    public List<Button> pausedButtons;
 
 
 
@@ -253,7 +253,7 @@ public class GamemodeDemo {
         hudBatch.end();
     }
 
-    public int drawPausedScreenAndMouseCmd(){
+    public void drawPausedScreenAndMouseCmd(){
         hudBatch.begin();
 
         float screenH = Gdx.graphics.getHeight();
@@ -271,14 +271,5 @@ public class GamemodeDemo {
         float x = Gdx.input.getX();
         float y = Gdx.input.getY();
 
-        if(Gdx.input.justTouched()) {
-            for (int i = 0; i < pausedButtons.size(); i++) {
-                if(pausedButtons.get(i).isActive){
-                    return i;
-                }
-            }
-        }
-
-        return -1;
     }
 }

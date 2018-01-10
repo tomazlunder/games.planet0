@@ -48,6 +48,8 @@ public class GameScreen implements Screen, MouseWheelListener{
     //Sounds
     private long mainloopId;
 
+    private float mainLoopVolume;
+
 
     public GameScreen(GameClass game) {
         this.game = game;
@@ -79,7 +81,7 @@ public class GameScreen implements Screen, MouseWheelListener{
 
 
         //Init main sound track
-        mainloopId = SoundSingleton.getInstance().mainLoop.loop(0.30f);
+        SoundSingleton.getInstance().gameMusic.play();
 
         Gdx.input.setInputProcessor(new InputProcessorWS(circlePlayer));
         System.out.println("[GameScreen] Screen and game have loaded.");
@@ -118,18 +120,12 @@ public class GameScreen implements Screen, MouseWheelListener{
 
         //If
         if (cameraType == CameraType.PLAYER) {
-            centerCameraOnPlayer();
-            //cameraFollowSmooth();
+            //centerCameraOnPlayer();
+            cameraFollowSmooth();
         }
 
         if(isPaused){
-            int mouse = gamemodeDemo.drawPausedScreenAndMouseCmd();
-            if(mouse == 0){
-                ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
-            }
-            if(mouse ==1){
-                isPaused = false;
-            }
+            gamemodeDemo.drawPausedScreenAndMouseCmd();
         } else {
             gamemodeDemo.drawHud();
         }
@@ -191,7 +187,7 @@ public class GameScreen implements Screen, MouseWheelListener{
 
     @Override
     public void dispose() {
-        SoundSingleton.getInstance().mainLoop.stop(mainloopId);
+        SoundSingleton.getInstance().gameMusic.stop();
     }
 
 
@@ -225,7 +221,7 @@ public class GameScreen implements Screen, MouseWheelListener{
 
         cam.up.set(0, -1, 0);
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
-        cam.zoom = ((Constants.DEFAULT_PLAYER_SIZE * 40f) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
+        cam.zoom = ((Constants.DEFAULT_PLAYER_SIZE * 50) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
     }
 
     /*
@@ -314,7 +310,23 @@ public class GameScreen implements Screen, MouseWheelListener{
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
             ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+        }
 
+        if(Gdx.input.justTouched()) {
+            for (int i = 0; i < gamemodeDemo.pausedButtons.size(); i++) {
+                if (gamemodeDemo.pausedButtons.get(i).isActive) {
+                    switch (i) {
+                        case 0:
+                            ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+                            break;
+                        case 1:
+                            isPaused = false;
+                        case 2:
+                            ScreenManager.getInstance().pauseAndOpen(ScreenEnum.SETTINGS);
+                            break;
+                    }
+                }
+            }
         }
     }
 

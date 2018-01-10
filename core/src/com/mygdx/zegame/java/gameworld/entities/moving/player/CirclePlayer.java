@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.zegame.java.commons.Commons;
+import com.mygdx.zegame.java.constants.Constants;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 import com.mygdx.zegame.java.gameworld.entities.MovingEntity;
+import com.mygdx.zegame.java.settings.DefaultVolumeSettings;
 import com.mygdx.zegame.java.sound.SoundSingleton;
 import com.mygdx.zegame.java.weapons.AmmoEnum;
 import com.mygdx.zegame.java.weapons.StartGun;
@@ -21,7 +23,7 @@ import java.util.Map;
 
 public class CirclePlayer extends MovingEntity {
     //Player physics
-    private float DEFAULT_MAX_HORIZONTAL_SPEED = 6f;
+    private float DEFAULT_MAX_HORIZONTAL_SPEED = 8f;
     private float DEFAULT_MAX_SPEED = 15;
     private float DEFAULT_JUMP_ACC = 2.7f;
     private float DEFAULT_MAX_ACC = 2;
@@ -82,10 +84,7 @@ public class CirclePlayer extends MovingEntity {
     public Weapon[] weapons;
     public int selectedWeapon;
 
-
-
-    //Sound
-    SoundSingleton sound;
+    private float mTimeToNextStep;
 
 
     public CirclePlayer(float radius, Planet planet, OrthographicCamera camera){
@@ -138,7 +137,6 @@ public class CirclePlayer extends MovingEntity {
 
         elapsedTime = 0;
 
-        sound = SoundSingleton.getInstance();
         movingLeft = movingRight = jumping = false;
     }
 
@@ -187,7 +185,7 @@ public class CirclePlayer extends MovingEntity {
 
         //PLAYER JUMPS
         if(jumping && isGrounded() &&!inJump && jumpTimeout <= 0) {
-            sound.jump.play();
+            SoundSingleton.getInstance().jump.play(DefaultVolumeSettings.FX_JUMP_VOLUME);
             jumpTimeout = DEFAULT_JUMP_TIMEOUT;
             airtime = 0;
             inJump = true;
@@ -226,6 +224,21 @@ public class CirclePlayer extends MovingEntity {
         this.speed.add(acceleration);
         if(Math.abs(speed.x) > maxSpeed){
             speed.setLength(maxSpeed);
+        }
+
+        //FOOTSTEP SOUNDFX
+        if ((movingRight || movingLeft)&& !inJump){
+            mTimeToNextStep -= deltaTime;
+            if (mTimeToNextStep < 0){
+                SoundSingleton.getInstance().footstep.play(DefaultVolumeSettings.FX_FOOTSTEP);
+                while (mTimeToNextStep < 0){ //in case of a really slow frame,
+                    //make sure we don't fall too far behind
+                    mTimeToNextStep += Constants.TIME_BETWEEN_STEP_SOUNDS + Commons.randomWithRange(0,Constants.TIME_BETWEEN_STEP_SOUNDS_RANDOM_MAX);
+                }
+            }
+        } else {
+            mTimeToNextStep = 0; //or whatever delay you want for the first sound when
+            //you start walking
         }
 
         //Converting to universe coordinates

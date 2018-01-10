@@ -68,7 +68,7 @@ public class MainMenuScreen implements Screen {
 
         this.skip_for_loading = 2;
 
-        loopId = SoundSingleton.getInstance().arcade.loop(0.5f);
+        SoundSingleton.getInstance().menuMusic.play();
     }
 
     @Override
@@ -120,7 +120,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void hide() {
-        SoundSingleton.getInstance().arcade.stop(loopId);
+        SoundSingleton.getInstance().menuMusic.stop();
     }
 
     @Override
@@ -174,7 +174,7 @@ public class MainMenuScreen implements Screen {
     }
 
     private void settingsClicked() {
-
+        ScreenManager.getInstance().pauseAndOpen(ScreenEnum.SETTINGS);
     }
 
     private void exitClicked() {
