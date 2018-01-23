@@ -3,6 +3,7 @@ package com.mygdx.zegame.java.gameworld;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Plane;
+import com.mygdx.zegame.java.gameworld.entities.Entity;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 
 import java.util.ArrayList;
@@ -20,6 +21,14 @@ public class Universe {
 
     public int getSize(){
         return size;
+    }
+
+    public ArrayList<Entity> getAllEntities(){
+        ArrayList<Entity> toReturn = new ArrayList<Entity>();
+        for(Planet p : planets){
+            toReturn.addAll(p.entities);
+        }
+        return toReturn;
     }
 
     public void update(float deltaTime){

@@ -26,21 +26,6 @@ public class GameClass extends Game {
 
         ScreenManager.getInstance().initialize(this);
         ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
-
-        /*
-        FileHandle file = Gdx.files.external("planet0/settings.dat");
-        OutputStream out = null;
-        try {
-            out = file.write(false);
-            out.write(-2);
-            out.close();
-        } catch (Exception ex){
-            System.out.println("[File write ex] "+ex.toString());
-        } finally {
-            if(out != null) try {out.close();} catch (Exception ex){System.out.println("[Stream close ex] "+ex.toString());}
-        }
-        */
-
     }
 
 

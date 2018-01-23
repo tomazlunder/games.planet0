@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.mygdx.zegame.java.Living;
 import com.mygdx.zegame.java.commons.Commons;
 import com.mygdx.zegame.java.constants.Constants;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
@@ -22,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class CirclePlayer extends MovingEntity {
+public class CirclePlayer extends MovingEntity implements Living {
     //Player physics
     private float DEFAULT_MAX_HORIZONTAL_SPEED = 8f;
     private float DEFAULT_MAX_SPEED = 15;
@@ -44,16 +45,22 @@ public class CirclePlayer extends MovingEntity {
     private float jumpTimeout;
     private float airtime;
 
+    private float SQUASHED_TIME = 2.2f;
+    private float squashedTimeLeft;
+
     //Player health
+    private float MAX_HEALTH = 100f;
+    private float MAX_ARMOR = 100f;
+
     private float DEFAULT_HEALTH = 100f;
     private float DEFAULT_SHIELD = 0;
-    public float healthPoints, shieldPoints;
+    public float healthPoints, armorPoints;
 
     //Player animation
     private OrthographicCamera camera;
 
     private int currentFrame;
-    private TextureAtlas ta;
+    private TextureAtlas ta, taSquashed;
     private TextureRegion trBody, trLegs, trFace;
     private Sprite spriteBody, spriteLegs, spriteFace;
     private Sprite spriteGun;
@@ -64,6 +71,7 @@ public class CirclePlayer extends MovingEntity {
     String FACE_IDLE = "face_idle";
     String FACE_LEFT = "face_left";
     String FACE_JUMP = "face_jump";
+    String LEGS_JUMP_LEFT = "legs_jump_left";
 
     Animation<TextureRegion> bodyAnimation;
     Animation<TextureRegion> runAnimation;
@@ -79,6 +87,8 @@ public class CirclePlayer extends MovingEntity {
             "legs_run_left12","legs_run_left14", "legs_run_left16",
             "legs_run_left18");
 
+    List<String> SQUASHED_ANIMATION = Arrays.asList("squashed1","squashed2", "squashed3", "squashed4", "squashed5", "squashed6", "squashed7");
+
     Sprite handIdleSprite, handWalkingSprite;
 
     //Weapon and inventory stuff
@@ -90,6 +100,8 @@ public class CirclePlayer extends MovingEntity {
 
     public CirclePlayer(float radius, Planet planet, OrthographicCamera camera){
         super(planet.getX(),planet.getY()+planet.getRadius()+radius*2,radius,planet);
+
+        this.name = "CirclePlayer";
         this.center = new Vector2(planet.getX(), planet.getY()+planet.getRadius()+radius);
         this.radius = radius;
         this.maxSpeed = DEFAULT_MAX_SPEED;
@@ -102,9 +114,11 @@ public class CirclePlayer extends MovingEntity {
         this.legHeight = radius/2.5f;
 
         this.healthPoints = DEFAULT_HEALTH;
-        this.shieldPoints = DEFAULT_SHIELD;
+        this.armorPoints = DEFAULT_SHIELD;
 
-        ta = new TextureAtlas("spritesheets/ss_player1.atlas");
+        ta = new TextureAtlas("spritesheets/ss_player2.atlas");
+        taSquashed = new TextureAtlas("spritesheets/ss_squashed.atlas");
+
         trFace = ta.findRegion(FACE_IDLE);
         spriteFace = new Sprite(trFace);
 
@@ -138,146 +152,164 @@ public class CirclePlayer extends MovingEntity {
 
         elapsedTime = 0;
 
+        this.squashedTimeLeft = 0;
+
         movingLeft = movingRight = jumping = false;
     }
 
     //UPDATE
     @Override
     public void update(float deltaTime){
-        this.calculateRotationFromCenter();
-        this.calcGravityForce();
-        this.calcUnitVectors();
-
-        for(Weapon w : weapons){
-            if(w != null){
-                w.update(deltaTime);
+        if(squashedTimeLeft > 0){
+            squashedTimeLeft -= deltaTime;
+            if(squashedTimeLeft <= 0){
+                squashedTimeLeft = 0;
+                this.collision = true;
             }
         }
 
-        elapsedTime+= deltaTime;
-        //SETTING VARIABLES FOR ANIMATION
-        currentFrame ++;
-        if(movingLeft && movingDirection != -1){
-            currentFrame = 0;
-            movingDirection = -1;
-        } else if (movingRight && movingDirection != 1){
-            currentFrame = 0;
-            movingDirection = 1;
-        } else if (!movingLeft && !movingRight){
-            movingDirection = 0;
-            currentFrame = 0;
-        }
-        //end animation
+        else {
+            this.calculateRotationFromCenter();
+            this.calcGravityForce();
+            this.calcUnitVectors();
 
-        if(jumpTimeout > 0){ jumpTimeout-= deltaTime; }
-        if(isGrounded()){airtime=0;}
-
-
-        //If the player is on the ground and has negative acceleration, his acceleration becomes 0
-        if(isGrounded() && !inJump && this.acceleration.y < 0){
-            this.acceleration.y = 0;
-            this.speed.y = 0;
-        }
-
-        //Player landed from jump
-        if(inJump && isGrounded()){
-            inJump = false;
-        }
-
-        //PLAYER JUMPS
-        if(jumping && isGrounded() &&!inJump && jumpTimeout <= 0) {
-            SoundSingleton.getInstance().jump.play(DefaultVolumeSettings.FX_JUMP_VOLUME);
-            jumpTimeout = DEFAULT_JUMP_TIMEOUT;
-            airtime = 0;
-            inJump = true;
-            this.acceleration.y = DEFAULT_JUMP_ACC;
-        }
-        else if(inJump) {
-            airtime += deltaTime;
-        }
-
-        acceleration.y -= DEFAULT_GRAVITY;
-
-        //HORIZONTAL [LEFT/RIGHT] MOVEMENT
-        if(!inJump) {
-            //if   On ground and pressing left
-            //else On ground not pressing left
-            if (movingLeft && !movingRight) {
-                if (this.acceleration.x > -maxAcceleration) {
-                    this.acceleration.x -= accelerationStep;
+            for (Weapon w : weapons) {
+                if (w != null) {
+                    w.update(deltaTime);
                 }
             }
 
-            //if On ground and pressing right
-            //else On ground not pressing right
-            if (movingRight && !movingLeft) {
-                if (this.acceleration.x < maxAcceleration) {
-                    this.acceleration.x += accelerationStep;
+            elapsedTime += deltaTime;
+
+            //SETTING VARIABLES FOR ANIMATION
+            currentFrame++;
+            if (movingLeft && movingDirection != -1) {
+                currentFrame = 0;
+                movingDirection = -1;
+            } else if (movingRight && movingDirection != 1) {
+                currentFrame = 0;
+                movingDirection = 1;
+            } else if (!movingLeft && !movingRight) {
+                movingDirection = 0;
+                currentFrame = 0;
+            }
+            //end animation
+
+            if (jumpTimeout > 0) {
+                jumpTimeout -= deltaTime;
+            }
+            if (isGrounded()) {
+                airtime = 0;
+            }
+
+
+            //If the player is on the ground and has negative acceleration, his acceleration becomes 0
+            if (isGrounded() && !inJump && this.acceleration.y < 0) {
+                this.acceleration.y = 0;
+                this.speed.y = 0;
+            }
+
+            //Player landed from jump
+            if (inJump && isGrounded() && jumpTimeout < DEFAULT_JUMP_TIMEOUT / 2) {
+                inJump = false;
+            }
+
+            //PLAYER JUMPS
+            if (jumping && isGrounded() && !inJump && jumpTimeout <= 0) {
+                SoundSingleton.getInstance().jump.play(DefaultVolumeSettings.FX_JUMP_VOLUME);
+                jumpTimeout = DEFAULT_JUMP_TIMEOUT;
+                airtime = 0;
+                inJump = true;
+                this.acceleration.y = DEFAULT_JUMP_ACC;
+            } else if (inJump) {
+                airtime += deltaTime;
+            }
+
+            acceleration.y -= DEFAULT_GRAVITY;
+
+            //HORIZONTAL [LEFT/RIGHT] MOVEMENT
+            if (!inJump) {
+                //if   On ground and pressing left
+                //else On ground not pressing left
+                if (movingLeft && !movingRight) {
+                    if (this.acceleration.x > -maxAcceleration) {
+                        this.acceleration.x -= accelerationStep;
+                    }
+                }
+
+                //if On ground and pressing right
+                //else On ground not pressing right
+                if (movingRight && !movingLeft) {
+                    if (this.acceleration.x < maxAcceleration) {
+                        this.acceleration.x += accelerationStep;
+                    }
+                }
+
+                if (!movingRight && !movingLeft) {
+                    this.acceleration.x = 0;
+                    this.speed.x /= 3;
                 }
             }
 
-            if(!movingRight && !movingLeft){
-                this.acceleration.x = 0;
-                this.speed.x/=3;
+            this.speed.add(acceleration);
+            if (Math.abs(speed.x) > maxSpeed) {
+                speed.setLength(maxSpeed);
             }
-        }
 
-        this.speed.add(acceleration);
-        if(Math.abs(speed.x) > maxSpeed){
-            speed.setLength(maxSpeed);
-        }
-
-        //FOOTSTEP SOUNDFX
-        if ((movingRight || movingLeft)&& !inJump){
-            mTimeToNextStep -= deltaTime;
-            if (mTimeToNextStep < 0){
-                SoundSingleton.getInstance().footstep.play(DefaultVolumeSettings.FX_FOOTSTEP);
-                while (mTimeToNextStep < 0){ //in case of a really slow frame,
-                    //make sure we don't fall too far behind
-                    mTimeToNextStep += Constants.TIME_BETWEEN_STEP_SOUNDS + Commons.randomWithRange(0,Constants.TIME_BETWEEN_STEP_SOUNDS_RANDOM_MAX);
+            //FOOTSTEP SOUNDFX
+            if ((movingRight || movingLeft) && !inJump) {
+                mTimeToNextStep -= deltaTime;
+                if (mTimeToNextStep < 0) {
+                    SoundSingleton.getInstance().footstep.play(DefaultVolumeSettings.FX_FOOTSTEP);
+                    while (mTimeToNextStep < 0) { //in case of a really slow frame,
+                        //make sure we don't fall too far behind
+                        mTimeToNextStep += Constants.TIME_BETWEEN_STEP_SOUNDS + Commons.randomWithRange(0, Constants.TIME_BETWEEN_STEP_SOUNDS_RANDOM_MAX);
+                    }
                 }
+            } else {
+                mTimeToNextStep = 0; //or whatever delay you want for the first sound when
+                //you start walking
             }
-        } else {
-            mTimeToNextStep = 0; //or whatever delay you want for the first sound when
-            //you start walking
+
+            //Converting to universe coordinates
+            Vector2 verticalSpeed, horizontalSpeed, trueSpeed;
+            verticalSpeed = upUnit.cpy().scl(speed.y);
+            horizontalSpeed = rightUnit.cpy().scl(speed.x);
+
+            if (horizontalSpeed.len() > DEFAULT_MAX_HORIZONTAL_SPEED) {
+                horizontalSpeed.setLength(DEFAULT_MAX_HORIZONTAL_SPEED);
+            }
+
+            //Scaling with time
+            trueSpeed = verticalSpeed.add(horizontalSpeed).scl(deltaTime * SPEED_FACTOR);
+
+            this.newPosition = center.cpy();
+            this.newPosition.add(trueSpeed);
+            this.center = newPosition;
+            correctForPlanet();
+            this.baseCollision.updatePosition(center);
+
+            movingLeft = movingRight = jumping = false;
         }
-
-        //Converting to universe coordinates
-        Vector2 verticalSpeed, horizontalSpeed, trueSpeed;
-        verticalSpeed = upUnit.cpy().scl(speed.y);
-        horizontalSpeed = rightUnit.cpy().scl(speed.x);
-
-        if(horizontalSpeed.len() > DEFAULT_MAX_HORIZONTAL_SPEED){
-            horizontalSpeed.setLength(DEFAULT_MAX_HORIZONTAL_SPEED);
-        }
-
-        //Scaling with time
-        trueSpeed = verticalSpeed.add(horizontalSpeed).scl(deltaTime*SPEED_FACTOR);
-
-        this.newPosition = center.cpy();
-        this.newPosition.add(trueSpeed);
-        this.center = newPosition;
-        correctForPlanet();
-        this.baseCollision.updatePosition(center);
-
-        movingLeft = movingRight = jumping = false;
     }
 
     //DRAW WITH SPRITES
     public void draw(SpriteBatch spriteBatch){
         spriteBatch.begin();
         //drawAiming(spriteBatch);
-
-        if(movingDirection == -1){
-            drawSelectedWeapon(spriteBatch);
-            drawBody(spriteBatch);
-            drawLegsAndFace(spriteBatch);
+        if(squashedTimeLeft > 0){
+            drawSquashed(spriteBatch);
         } else {
-            drawBody(spriteBatch);
-            drawLegsAndFace(spriteBatch);
-            drawSelectedWeapon(spriteBatch);
+            if (movingDirection == -1) {
+                drawSelectedWeapon(spriteBatch);
+                drawBody(spriteBatch);
+                drawLegsAndFace(spriteBatch);
+            } else {
+                drawBody(spriteBatch);
+                drawLegsAndFace(spriteBatch);
+                drawSelectedWeapon(spriteBatch);
+            }
         }
-
         spriteBatch.end();
     }
 
@@ -317,20 +349,43 @@ public class CirclePlayer extends MovingEntity {
             trFace.flip(true,false);
         }
 
-        if(this.movingDirection != 0){
-            trLegs = ta.findRegion(LEG_RUN_ANIMATION.get(currentFrame%LEG_RUN_ANIMATION.size()));
+        //DRAWING FACE
+        if(movingDirection != 0) {
             trFace = ta.findRegion(FACE_LEFT);
-            if(this.movingDirection == 1){
-                trLegs.flip(true,false);
+            if (this.movingDirection == 1) {
                 trFace.flip(true, false);
             }
         } else {
-            trLegs = ta.findRegion(LEG_DEFAULT);
             trFace = ta.findRegion(FACE_IDLE);
         }
-        if(this.inJump){
-            trLegs = ta.findRegion(LEG_JUMP);
-           // trFace = ta.findRegion(FACE_JUMP);
+
+        //DRAWING LEGS
+        if(!this.inJump) {
+            //Not moving L/R
+            if (this.movingDirection == 0) {
+                trLegs = ta.findRegion(LEG_DEFAULT);
+            }
+            //Moving L/R
+            else {
+                trLegs = ta.findRegion(LEG_RUN_ANIMATION.get(currentFrame % LEG_RUN_ANIMATION.size()));
+                if (this.movingDirection == 1) {
+                    trLegs.flip(true, false);
+                }
+            }
+        }
+        //In jump````
+        else {
+            //Not moving L/R
+            if(this.movingDirection == 0) {
+                trLegs = ta.findRegion(LEG_JUMP);
+            }
+            //Moving L/R
+            else {
+                trLegs = ta.findRegion(LEGS_JUMP_LEFT);
+                if(this.movingDirection == 1){
+                    trLegs.flip(true, false);
+                }
+            }
         }
 
         spriteLegs.setRegion(trLegs);
@@ -357,6 +412,28 @@ public class CirclePlayer extends MovingEntity {
     public void drawBody(SpriteBatch spriteBatch){
         trBody = ta.findRegion(BODY_ANIMATION.get(currentFrame%BODY_ANIMATION.size()));
         trBody = ta.findRegion("body1");
+
+        spriteBody.setRegion(trBody);
+        spriteBody.setPosition(center.x-spriteBody.getWidth()/2,center.y-spriteBody.getHeight()/2);
+        spriteBody.setOrigin(spriteBody.getWidth()/2, spriteBody.getHeight()/2);
+        //spriteBody.setScale(radius*2/spriteBody.getWidth());
+        spriteBody.setScale(radius*2/(spriteBody.getWidth() * 2/3));
+        spriteBody.setRotation(rotationFromCenter-90);
+        spriteBody.draw(spriteBatch);
+
+    }
+
+    public void drawSquashed(SpriteBatch spriteBatch){
+        if(squashedTimeLeft > SQUASHED_TIME/2){
+            trBody = taSquashed.findRegion(SQUASHED_ANIMATION.get(0));
+        } else {
+            int numFrames = SQUASHED_ANIMATION.size() - 1;
+            float timeForOne = (SQUASHED_TIME/2) / numFrames;
+            int current = (int) (squashedTimeLeft / timeForOne);
+            trBody = taSquashed.findRegion(SQUASHED_ANIMATION.get(SQUASHED_ANIMATION.size()-1 - current));
+        }
+
+
 
         spriteBody.setRegion(trBody);
         spriteBody.setPosition(center.x-spriteBody.getWidth()/2,center.y-spriteBody.getHeight()/2);
@@ -417,17 +494,40 @@ public class CirclePlayer extends MovingEntity {
     }
 
     //HEALTH RELATED
+    @Override
     public void takeDamage(float damage){
-        if(this.shieldPoints > 0){
-            shieldPoints-= damage;
-            if(shieldPoints < 0){shieldPoints = 0;}
+        if(this.armorPoints > 0){
+            armorPoints -= damage;
+            if(armorPoints < 0){
+                armorPoints = 0;}
         } else {
             healthPoints-=damage;
         }
     }
 
+    @Override
+    public float getMaxHealth(){
+        return MAX_HEALTH;
+    }
+
+    @Override
+    public float getMaxArmor(){
+        return MAX_ARMOR;
+    }
+
+    @Override
+    public float getHealth(){
+        return healthPoints;
+    }
+
+    @Override
+    public float getArmor(){
+        return armorPoints;
+    }
+
+
     public void gainShield(){
-        this.shieldPoints = 100;
+        this.armorPoints = 100;
     }
 
     public boolean isDead(){
@@ -460,7 +560,7 @@ public class CirclePlayer extends MovingEntity {
         if(weapons[selectedWeapon] != null){
             if(weapons[selectedWeapon].shoot()){
                 //nearestPlanet.entities.add(new StartBullet(getGunTipPosition(),Commons.vec3to2(aimingAt),nearestPlanet));
-                new StartBullet(getGunTipPosition(),Commons.vec3to2(aimingAt),nearestPlanet);
+                new StartBullet(getGunTipPosition(),Commons.vec3to2(aimingAt),nearestPlanet, this);
             }
         }
     }
@@ -491,7 +591,21 @@ public class CirclePlayer extends MovingEntity {
 
     //String
     public String toString(){
-        return "[CirclePlayer] POS["+this.center.toString()+"] SPEED "+this.speed.len()+" ["+this.speed.toString()+"] ACC "+this.acceleration.len()+" ["+ this.acceleration.toString() +"]";
+        return "[CirclePlayer] injump["+ inJump+ "] POS["+this.center.toString()+"] SPEED "+this.speed.len()+" ["+this.speed.toString()+"] ACC "+this.acceleration.len()+" ["+ this.acceleration.toString() +"]";
 
+    }
+
+    /*
+     * SQUASH
+     */
+    public void squash(){
+        if(squashedTimeLeft < SQUASHED_TIME/2){
+            this.takeDamage(20);
+            this.collision = false;
+            this.squashedTimeLeft = SQUASHED_TIME;
+
+            this.acceleration = new Vector2(0,0);
+            this.speed = new Vector2(0,0);
+        }
     }
 }

@@ -41,6 +41,7 @@ public class ScreenManager {
 
         // Show new screen
         Screen newScreen = screenEnum.getScreen(game);
+
         game.setScreen(newScreen);
 
         // Dispose previous screen

@@ -70,11 +70,11 @@ public abstract class Planet implements BasicCollision{
     abstract public void draw(ShapeRenderer shapeRenderer);
 
     public void update(float deltaTime){
-        toRemoveFromEntities = new ArrayList<Entity>();
         for(Entity e : entities){
             e.update(deltaTime);
         }
 
         entities.removeAll(toRemoveFromEntities);
+        toRemoveFromEntities = new ArrayList<Entity>();
     }
 }

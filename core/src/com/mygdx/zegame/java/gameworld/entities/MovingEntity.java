@@ -5,7 +5,7 @@ import com.mygdx.zegame.java.gameworld.planets.Planet;
 import com.mygdx.zegame.java.physics.Gravity;
 
 public abstract class MovingEntity extends Entity {
-    //Vectors are all based on object with skyes above and ground below
+    //Vectors are all based on object with sky above and ground below
     protected Vector2 leftUnit, rightUnit, upUnit, downUnit;
 
     protected Vector2 acceleration;

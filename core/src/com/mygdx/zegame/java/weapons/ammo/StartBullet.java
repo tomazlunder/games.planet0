@@ -3,29 +3,30 @@ package com.mygdx.zegame.java.weapons.ammo;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.zegame.java.Living;
 import com.mygdx.zegame.java.commons.Commons;
 import com.mygdx.zegame.java.gameworld.entities.Entity;
+import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 
-public class StartBullet extends Entity{
-
-    private float range;
-    private float dist_traveled;
-    private Texture texture;
+public class StartBullet extends Bullet{
 
 
-    private Vector2 direction;
-
-    public StartBullet(Vector2 from, Vector2 to, Planet planet){
+    public StartBullet(Vector2 from, Vector2 to, Planet planet, Entity shooter){
         super(from.x,from.y,3, planet);
 
-        range = 1000;
+        name = "StartBullet";
+        range = 2000;
         dist_traveled = 0;
+        damage = 10;
 
         texture = new Texture("bullet.png");
 
         direction = Commons.unitBetweenTwo(from,to);
+
+        this.shooter = shooter;
     }
 
     @Override
@@ -35,12 +36,33 @@ public class StartBullet extends Entity{
         dist_traveled += direction.cpy().scl(deltaTime*1200).len();
 
         this.center = newPos;
+        this.baseCollision.updatePosition(center);
+
         //System.out.println(this.center.toString());
         //System.out.println(dist_traveled);
 
         if(dist_traveled > range){
             this.removeFromPlanet();
             System.out.println("[StartBullet] removed.");
+        }
+
+        //collisionHandling();
+    }
+
+    private void collisionHandling(){
+        if(nearestPlanet.getCollisionShape().isCollidingWith(this.getCollisionShape())){
+            this.removeFromPlanet();
+        } else {
+            for (Entity e : nearestPlanet.entities) {
+                if (e != this && e != shooter) {
+                    if (e.getCollisionShape().isCollidingWith(this.getCollisionShape())) {
+                        if (e instanceof Living) {
+                            ((Living) e).takeDamage(damage);
+                        }
+                        this.removeFromPlanet();
+                    }
+                }
+            }
         }
     }
 

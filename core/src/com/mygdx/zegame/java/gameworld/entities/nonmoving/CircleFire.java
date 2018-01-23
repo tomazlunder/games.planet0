@@ -17,6 +17,8 @@ public class CircleFire extends Entity{
 
     public CircleFire(float x, float y, float radius, Planet planet){
         super(x,y,radius,planet);
+
+        this.name = "CircleFire";
         this.radius = radius;
 
         this.texture = new Texture("spike2.gif");

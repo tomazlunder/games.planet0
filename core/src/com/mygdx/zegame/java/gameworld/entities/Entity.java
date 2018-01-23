@@ -23,6 +23,10 @@ public abstract class Entity implements BasicCollision{
 
     protected float rotationFromCenter;
 
+    protected String name = "default name";
+
+    private boolean removed;
+
     public Entity(float x, float y, float radius, Planet planet){
         this.center = new Vector2(x,y);
         this.radius = radius;
@@ -33,6 +37,7 @@ public abstract class Entity implements BasicCollision{
         this.nearestPlanet.entities.add(this);
 
         calculateRotationFromCenter();
+        removed = false;
     }
 
     public Entity(Vector2 center, float radius, Planet planet){
@@ -99,6 +104,11 @@ public abstract class Entity implements BasicCollision{
 
     public void removeFromPlanet(){
         this.nearestPlanet.toRemoveFromEntities.add(this);
+        removed = true;
+    }
+
+    public boolean isRemoved(){
+        return removed;
     }
 
 
@@ -109,4 +119,14 @@ public abstract class Entity implements BasicCollision{
 
     public abstract void draw(SpriteBatch spriteBatch);
     public abstract void draw(ShapeRenderer shapeRenderer);
+
+    public String getName(){
+        return name;
+    }
+
+
+    @Override
+    public String toString(){
+        return this.center.toString();
+    }
 }

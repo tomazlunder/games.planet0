@@ -11,26 +11,31 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.zegame.java.CameraType;
+import com.mygdx.zegame.java.CollisionHandler;
 import com.mygdx.zegame.java.GameClass;
 import com.mygdx.zegame.java.commons.Commons;
 import com.mygdx.zegame.java.constants.Constants;
+import com.mygdx.zegame.java.data_structures.Quadtree;
 import com.mygdx.zegame.java.gamemodes.GamemodeDemo;
 import com.mygdx.zegame.java.gameworld.Universe;
+import com.mygdx.zegame.java.gameworld.entities.Entity;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.gameworld.planets.FirstPlanet;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
-import com.mygdx.zegame.java.input.Button;
 import com.mygdx.zegame.java.input.InputProcessorWS;
 import com.mygdx.zegame.java.sound.SoundSingleton;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameScreen implements Screen, MouseWheelListener{
 
     private GameClass game;
     private boolean isPaused;
+    boolean isLoaded;
+
 
     //Drawing
     private int drawMode;
@@ -46,10 +51,8 @@ public class GameScreen implements Screen, MouseWheelListener{
 
     private int tick;
 
-    //Sounds
-    private long mainloopId;
+    private Quadtree quad;
 
-    private float mainLoopVolume;
 
 
     public GameScreen(GameClass game) {
@@ -58,6 +61,7 @@ public class GameScreen implements Screen, MouseWheelListener{
 
     @Override
     public void show() {
+        isLoaded = false;
         Pixmap pm = new Pixmap(Gdx.files.internal("sprites/cursors/cursor1.png"));
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, pm.getWidth()/2, pm.getHeight()/2));
         pm.dispose();
@@ -90,82 +94,38 @@ public class GameScreen implements Screen, MouseWheelListener{
 
         Gdx.input.setInputProcessor(new InputProcessorWS(circlePlayer));
         System.out.println("[GameScreen] Screen and game have loaded.");
+        isLoaded = true;
+
+        quad = new Quadtree(0, 0,0,universe.getSize(), universe.getSize());
     }
 
     @Override
     public void render(float delta) {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
-        //IF PAUSED
-        if(isPaused){
-            handlePausedInputs();
-        }
-        //IF NOT PAUSED (Playing)
-        else
-        {
-            handleInputs();
+        //0. clearing the collision tree
+        quad.clear();
+
+        //1. INPUTS
+        handleInputs();
+
+        //2. UPDATE
+        if(!isPaused) {
+            collisionDetectionAndHandling();
+
             gamemodeDemo.update(deltaTime);
             universe.update(deltaTime);
+            cam.update();
         }
 
-        //Camera update
-        cam.update();
+        //3. DRAW
+        draw();
 
-        //Clear screen
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        //4. CAMERA UPDATE
+        updateCameraPostition();
 
-        //Draw the world depending on drawMode (Sprite/Shape)
-        if (drawMode == 0) {
-            drawSprite();
-        }
-        else if (drawMode == 1) {
-            drawSimple();
-        }
-
-        //If
-        if (cameraType == CameraType.PLAYER) {
-            //centerCameraOnPlayer();
-            cameraFollowSmooth();
-        }
-
-        if(isPaused){
-            gamemodeDemo.drawPausedScreenAndMouseCmd();
-        } else {
-            gamemodeDemo.drawHud();
-        }
-
-        /*
-         * TEST
-         */
-        tick++;
-        if (tick % 100 == 0) {
-            //System.out.println(circlePlayer.toString());
-            //logger.log();
-        }
-    }
-
-    private void drawSprite() {
-        game.spriteBatch.setProjectionMatrix(cam.combined);
-
-        universe.draw(game.spriteBatch);
-    }
-
-    private void drawSimple() {
-        game.shapeRenderer.setProjectionMatrix(cam.combined);
-
-        universe.draw(game.shapeRenderer);
-        circlePlayer.draw(game.shapeRenderer);
-    }
-
-    private void switchDrawMode() {
-        if (drawMode == 0) {
-            //game.spriteBatch.dispose();
-            drawMode = 1;
-        } else if (drawMode == 1) {
-            //game.shapeRenderer.dispose();
-            drawMode = 0;
-        }
+        //5. MISC
+        miscTasks();
     }
 
     @Override
@@ -195,6 +155,91 @@ public class GameScreen implements Screen, MouseWheelListener{
         SoundSingleton.getInstance().gameMusic.stop();
     }
 
+    /*
+     * COLLISION DETECTION
+     */
+    public void collisionDetectionAndHandling() {
+        //Inserting all objects into collision tree
+        for (Entity e : universe.getAllEntities()) {
+            if (e.getCollision()) {
+                quad.insert((e));
+            }
+        }
+
+        //Possible collision detection
+        List<Entity> returnObjects = new ArrayList();
+        for (Entity e1 : universe.planets.get(0).entities) {
+            returnObjects.clear();
+            quad.retrieve(returnObjects, e1);
+            returnObjects.remove(e1);
+
+            for (Entity e2 : returnObjects) {
+                //If collision is possible, do actual collision detection
+                if (e1.getCollisionShape().isCollidingWith(e2.getCollisionShape())) {
+                    System.out.printf("[QUADTREE] Collision detected:" + e1.getName() + " - " + e2.getName() + ". ");
+                    CollisionHandler.handleCollision(e1,e2);
+                }
+            }
+        }
+    }
+
+    /*
+     * DRAWING RELATED FUNCTIONS
+     */
+    private void draw(){
+        //Clear screen
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        //Draw the world depending on drawMode (Sprite/Shape)
+        if (drawMode == 0) {
+            drawSprite();
+        }
+        else if (drawMode == 1) {
+            drawSimple();
+        }
+
+        if(isPaused){
+            gamemodeDemo.drawPausedScreenAndMouseCmd();
+        } else {
+            gamemodeDemo.drawHud();
+        }
+    }
+
+    private void drawSprite() {
+        game.spriteBatch.setProjectionMatrix(cam.combined);
+
+        universe.draw(game.spriteBatch);
+    }
+
+    private void drawSimple() {
+        game.shapeRenderer.setProjectionMatrix(cam.combined);
+
+        universe.draw(game.shapeRenderer);
+        circlePlayer.draw(game.shapeRenderer);
+    }
+
+    private void switchDrawMode() {
+        if (drawMode == 0) {
+            //game.spriteBatch.dispose();
+            drawMode = 1;
+        } else if (drawMode == 1) {
+            //game.shapeRenderer.dispose();
+            drawMode = 0;
+        }
+    }
+
+
+    /*
+     * CAMERA RELATED FUNCTIONS
+     */
+
+    private void updateCameraPostition(){
+        if (cameraType == CameraType.PLAYER) {
+            //centerCameraOnPlayer();
+            cameraFollowSmooth();
+        }
+    }
 
     private void centerCameraOnPlayer() {
         cam.up.set(0, -1, 0);
@@ -230,22 +275,29 @@ public class GameScreen implements Screen, MouseWheelListener{
     }
 
     /*
-     * INPUT ----------------------------------------------------------------------------------------------------------------
+     * INPUT RELATED FUNCTIONS
      */
-
     private void handleInputs() {
-        handleGameUniversalInputs();
+        if(isLoaded){
+            if(isPaused){
+                handlePausedInputs();
+            }
+            else {
 
-        if (cameraType == CameraType.PLAYER) {
-            handlePlayerInputs();
-        } else if (cameraType == CameraType.FREE) {
-            handleFreeInputs();
+                handleGameUniversalInputs();
+
+                if (cameraType == CameraType.PLAYER) {
+                    handlePlayerInputs();
+                } else if (cameraType == CameraType.FREE) {
+                    handleFreeInputs();
+                }
+            }
         }
     }
 
     private void handleFreeInputs() {
         if (Gdx.input.isTouched()) {
-            System.out.printf("Clicked: [" + Gdx.input.getX() + ", " + Gdx.input.getY() + "] \n");
+            //System.out.printf("Clicked: [" + Gdx.input.getX() + ", " + Gdx.input.getY() + "] \n");
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.R)) {
@@ -336,8 +388,12 @@ public class GameScreen implements Screen, MouseWheelListener{
         }
     }
 
-    public void handlePlayerInputs() {
+    private void handlePlayerInputs() {
         //HANDLE PLAYER INPUTS MUST BE CALLED BEFORE UPDATING THE PLAYER, SO THESE SETTINGS ARE USED (movingLeft, movingRight, jumping)
+        if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_0)){
+            circlePlayer.squash();
+        }
+
         if (Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)){
             circlePlayer.movingLeft = true;
         }
@@ -367,12 +423,25 @@ public class GameScreen implements Screen, MouseWheelListener{
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-
-        System.out.println("[CPC] Scolled!");
-        if(e.getWheelRotation() > 0){
-            circlePlayer.nextWeapon();
-        } else {
-            circlePlayer.prevWeapon();
+        if(isLoaded) {
+            System.out.println("[CPC] Scolled!");
+            if (e.getWheelRotation() > 0) {
+                circlePlayer.nextWeapon();
+            } else {
+                circlePlayer.prevWeapon();
+            }
         }
     }
+
+    /*
+     * MISC
+     */
+    private void miscTasks(){
+        tick++;
+        if (tick % 100 == 0) {
+            //System.out.println(circlePlayer.toString());
+            //logger.log();
+        }
+    }
+
 }

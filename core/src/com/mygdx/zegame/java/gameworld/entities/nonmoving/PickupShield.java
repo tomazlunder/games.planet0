@@ -24,8 +24,18 @@ public class PickupShield extends Entity{
         super(planet.getPointOnSurfaceWithRotation(rotation, 10),10f,planet);
         this.radius = 10;
 
+        this.name = "PickupShield";
         this.texture = new Texture("shield.jpg");
         sprite = new Sprite(texture,200,200);
+    }
+
+    @Override
+    public void update(float deltaTime){
+
+    }
+
+    private void collisionHandling(){
+
     }
 
     @Override

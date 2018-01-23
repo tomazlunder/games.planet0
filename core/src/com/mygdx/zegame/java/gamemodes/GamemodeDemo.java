@@ -1,13 +1,13 @@
 package com.mygdx.zegame.java.gamemodes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.zegame.java.enemies.EnemyController;
+import com.mygdx.zegame.java.enemies.roller.Roller;
 import com.mygdx.zegame.java.gameworld.Universe;
 import com.mygdx.zegame.java.gameworld.entities.Entity;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
@@ -27,6 +27,7 @@ public class GamemodeDemo {
     SpriteBatch hudBatch;
     BitmapFont font, fontStatus;
 
+
     private EnemyController enemyController;
 
     private Texture playerStatusUnderlay, playerStatusOverlay, playerStatusHpBar,playerStatusArmorBar;
@@ -36,7 +37,7 @@ public class GamemodeDemo {
 
     private Texture topUnderlay;
 
-    private Texture texPaused, texBtnMenu, texBtnMenuSel, texBtnPlay, texBtnPlaySel, texBtnSet,texBtnSetSel;
+    private Texture texPaused;
 
     public List<Button> pausedButtons;
 
@@ -112,6 +113,8 @@ public class GamemodeDemo {
 
         NorthPole np = new NorthPole(fp);
         //fp.entities.add(np);
+
+        Roller roller = new Roller(fp.getX()-8000, fp.getY()+fp.getRadius()+1000, fp);
     }
 
     public void update(float deltaTime){
@@ -143,11 +146,13 @@ public class GamemodeDemo {
 
         //DEBUG HUD ---
         font.draw(hudBatch, "Health: " + circlePlayer.healthPoints, 20, Gdx.graphics.getHeight()-20);
-        font.draw(hudBatch, "Shield: " + circlePlayer.shieldPoints, 20, Gdx.graphics.getHeight()-40);
+        font.draw(hudBatch, "Shield: " + circlePlayer.armorPoints, 20, Gdx.graphics.getHeight()-40);
         font.draw(hudBatch, "FPS: "+Gdx.graphics.getFramesPerSecond(),20,Gdx.graphics.getHeight()-60);
 
         String weaponName = (circlePlayer.getSelectedWeapon() != null) ? circlePlayer.getSelectedWeapon().name : "null";
         font.draw(hudBatch, "Weapon ["+circlePlayer.selectedWeapon +"]: " + weaponName, 20, Gdx.graphics.getHeight()-80);
+        font.draw(hudBatch, "Playa ["+circlePlayer.toString() +"]: " + weaponName, 20, Gdx.graphics.getHeight()-100);
+
 
         //PLAYER HUD ---
         //hudBatch.draw(greyBar, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()/6);
@@ -163,12 +168,12 @@ public class GamemodeDemo {
 
         //Width and height of the bars
         float hpLen = circlePlayer.healthPoints * (12 * underlayWidth/13) / 100;
-        float armorLen = circlePlayer.shieldPoints * (12 * underlayWidth/13) / 100;
+        float armorLen = circlePlayer.armorPoints * (12 * underlayWidth/13) / 100;
         float barH = 3 * underlayHeight/10;
 
         //Text (percentages)
         GlyphLayout hpLayout = new GlyphLayout(fontStatus, "" +(int) circlePlayer.healthPoints + "%");
-        GlyphLayout armorLayout = new GlyphLayout(fontStatus, "" +(int) circlePlayer.shieldPoints + "%");
+        GlyphLayout armorLayout = new GlyphLayout(fontStatus, "" +(int) circlePlayer.armorPoints + "%");
 
         //Drawing
         hudBatch.draw(playerStatusUnderlay, underlayX , underlayY, underlayWidth, underlayHeight);

@@ -1,6 +1,5 @@
 package com.mygdx.zegame.java.gamemodes;
 
-import com.mygdx.zegame.java.deprecated.Player;
 import com.mygdx.zegame.java.gameworld.Universe;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 

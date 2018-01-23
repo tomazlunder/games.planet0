@@ -14,6 +14,7 @@ public class NorthPole extends Entity {
         super(planet.getX(),planet.getY()+planet.getRadius(),0,planet);
         this.collision = false;
 
+        this.name = "CircleFire";
         this.texture = new Texture("sprites/world/northpole.png");
 
 
