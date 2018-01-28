@@ -27,6 +27,14 @@ public abstract class MovingEntity extends Entity {
         this.newPosition = new Vector2(x,y);
     }
 
+    protected MovingEntity(Vector2 v, float radius, Planet planet)
+    {
+        super(v,radius,planet);
+        this.acceleration = new Vector2(0,0);
+        this.speed = new Vector2(0,0);
+        this.newPosition = v;
+    }
+
     public void calcUnitVectors()
     {
         Vector2 planetCenter = nearestPlanet.getPosition();

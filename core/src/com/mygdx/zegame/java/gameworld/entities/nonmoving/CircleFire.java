@@ -15,28 +15,40 @@ public class CircleFire extends Entity{
 
     private float radius;
 
-    public CircleFire(float x, float y, float radius, Planet planet){
-        super(x,y,radius,planet);
+    private float ttl;
+
+    public CircleFire(float rotation, float radius, Planet planet){
+        super(planet.getPointOnSurfaceWithRotation(rotation,radius),radius,planet);
 
         this.name = "CircleFire";
         this.radius = radius;
 
         this.texture = new Texture("spike2.gif");
         sprite = new Sprite(texture,100,100);
+
+        ttl = 3f;
+    }
+
+    @Override
+    public void update(float deltaTime){
+        ttl -= deltaTime;
+        if(ttl< 0){
+            this.removeFromPlanet();
+        }
     }
 
 
 
     @Override
     public void draw(SpriteBatch spriteBatch) {
-        spriteBatch.begin();
+        //spriteBatch.begin();
         sprite.setPosition(center.x-sprite.getWidth()/2,center.y-sprite.getHeight()/2);
         sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
         sprite.setScale(radius*2/sprite.getWidth());
         sprite.setRotation(rotationFromCenter-90);
 
         sprite.draw(spriteBatch);
-        spriteBatch.end();
+        //spriteBatch.end();
     }
 
     @Override

@@ -16,8 +16,13 @@ public class SoundSingleton {
     public Sound jump;
     public Sound shoot;
     public Sound gun_reload;
+    public Sound no_ammo;
 
     public Sound footstep;
+
+    public Sound jetpack;
+
+    public Sound splat, lockon;
 
     //public Sound arcade;
     public Sound menuSelect;
@@ -37,8 +42,16 @@ public class SoundSingleton {
         jump = Gdx.audio.newSound(Gdx.files.internal("audio/jump.wav"));
         shoot = Gdx.audio.newSound(Gdx.files.internal("audio/shot.wav"));
         gun_reload = Gdx.audio.newSound(Gdx.files.internal("audio/gun_reload.mp3"));
+        no_ammo = Gdx.audio.newSound(Gdx.files.internal("audio/no_ammo.mp3"));
+
 
         footstep = Gdx.audio.newSound(Gdx.files.internal("audio/footstep_amp.wav"));
+        jetpack = Gdx.audio.newSound(Gdx.files.internal("audio/jetpack_loop.wav"));
+
+        lockon = Gdx.audio.newSound(Gdx.files.internal("audio/lockon.wav"));
+        splat = Gdx.audio.newSound(Gdx.files.internal("audio/splat.mp3"));
+
+
 
         //
         setVolumesFromPrefOrDefault();

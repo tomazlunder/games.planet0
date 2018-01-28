@@ -16,8 +16,10 @@ public class DefaultVolumeSettings {
     public static final float FX_JUMP_VOLUME = 0.3f;
     public static final float FX_STARTGUN_SHOT = 0.4f;
     public static final float FX_STARTGUN_RELOAD = 0.4f;
+    public static final float FX_JETPACK_VOLUME = 0.4f;
+    public static final float FX_NO_AMMO_VOLUME = 0.6f;
 
-    public static final float FX_FOOTSTEP = 1f;
+    public static final float FX_FOOTSTEP = 0.2f;
 
     public void setDefaultPreferences(Preferences prefs){
         prefs.putFloat("MENU_MUSIC_VOLUME", MENU_MUSIC_MAX_VOLUME/2);

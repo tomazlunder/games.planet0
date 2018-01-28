@@ -13,26 +13,25 @@ import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import java.util.ArrayList;
 
 public class FirstPlanet extends Planet {
-    private Texture texLU, texLD, texRU, texRD;
-    private Texture textureSky;
-
-    private Texture textureSkyDN;
-    private Sprite spriteSkyDN, spriteSkyBG, spriteClouds;
+    private Sprite spriteLU, spriteSkyDN, spriteSkyBG, spriteClouds;
 
     float dayNighRotation;
+
+    int day;
+    boolean dayChanged = false;
+
+
 
     public FirstPlanet(Universe universe) {
         super(universe,universe.getSize() / 2, universe.getSize() / 2, universe.getSize()/4);
 
-        this.texLU = new Texture("world8KqLU_p2.png");
-        this.texLD = new Texture("world8KqLD_p2.png");
-        this.texRU = new Texture("world8KqRU_p2.png");
-        this.texRD = new Texture("world8KqRD_p2.png");
+        //Texture texLU = new Texture("world8KqLU_p2.png");
+        Texture texLU = new Texture("world_LU_8K_c.png");
 
         texLU.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Linear);
-        texLD.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        texRU.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        texRD.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        spriteLU = new Sprite(texLU);
+
 
 
 
@@ -42,13 +41,17 @@ public class FirstPlanet extends Planet {
         this.spriteSkyDN = new Sprite(new Texture("sprites/world/night2_c.png"));
 
         dayNighRotation = 0;
+        spriteSkyDN.setRotation(-90);
+        spriteSkyBG.setRotation(-90);
     }
 
     @Override
     public void update(float deltaTime){
         super.update(deltaTime);
 
-        dayNighRotation = deltaTime;
+        dayNighRotation = deltaTime*2;
+
+        updateDay();
     }
 
     @Override
@@ -64,13 +67,29 @@ public class FirstPlanet extends Planet {
         spriteSkyBG.rotate(dayNighRotation);
 
         spriteSkyBG.draw(spriteBatch);
-
+        /*
         spriteBatch.draw(texLU, circleShape.center.x - planetRadius, circleShape.center.y, planetRadius, planetRadius);
         spriteBatch.draw(texLD, circleShape.center.x - planetRadius, circleShape.center.y - planetRadius, planetRadius, planetRadius);
         spriteBatch.draw(texRU, circleShape.center.x, circleShape.center.y, planetRadius, planetRadius);
         spriteBatch.draw(texRD, circleShape.center.x, circleShape.center.y - planetRadius, planetRadius, planetRadius);
+        */
+        spriteLU.setFlip(false, false);
 
-        spriteBatch.end();
+        spriteBatch.draw(spriteLU,circleShape.center.x - planetRadius, circleShape.center.y, planetRadius, planetRadius);
+
+        spriteLU.flip(false,true);
+        spriteBatch.draw(spriteLU, circleShape.center.x - planetRadius, circleShape.center.y - planetRadius, planetRadius, planetRadius);
+        spriteLU.setFlip(false, false);
+
+        spriteLU.flip(true, false);
+        spriteBatch.draw(spriteLU, circleShape.center.x, circleShape.center.y, planetRadius, planetRadius);
+        spriteLU.setFlip(false, false);
+
+        spriteLU.flip(true, true);
+        spriteBatch.draw(spriteLU, circleShape.center.x, circleShape.center.y - planetRadius, planetRadius, planetRadius);
+        spriteLU.setFlip(false, false);
+
+        //spriteBatch.end();
 
         //PLAYERS ARE DRAWN LAST JUST IN CASE
         ArrayList<Entity> saveForLast = new ArrayList<Entity>();
@@ -79,10 +98,15 @@ public class FirstPlanet extends Planet {
                 saveForLast.add(e);
                 continue;
             }
-            e.draw(spriteBatch);
+            if(e.isVisible()) {
+                e.draw(spriteBatch);
+            }
         }
+
         for(Entity e : saveForLast){
-            e.draw(spriteBatch);
+            if(e.isVisible()){
+                e.draw(spriteBatch);
+            }
         }
 
         spriteClouds.setAlpha(0.5f);
@@ -101,7 +125,7 @@ public class FirstPlanet extends Planet {
 
         dayNighRotation = 0;
 
-        spriteBatch.begin();
+        //spriteBatch.begin();
 
         spriteClouds.draw(spriteBatch);
         spriteSkyDN.draw(spriteBatch);
@@ -143,6 +167,25 @@ public class FirstPlanet extends Planet {
         for(Entity e : entities){
             e.draw(shapeRenderer);
         }
+    }
+
+    public float getDayAngle(){
+        return spriteSkyDN.getRotation() + 180;
+    }
+
+    public void updateDay(){
+        if(getDayAngle() < 10 && dayChanged){
+            dayChanged = false;
+        }
+
+        if(getDayAngle() > 90 && !dayChanged){
+            day++;
+            dayChanged = true;
+        }
+    }
+
+    public int getDay(){
+        return day;
     }
 
 

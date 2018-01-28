@@ -38,39 +38,18 @@ public class StartBullet extends Bullet{
         this.center = newPos;
         this.baseCollision.updatePosition(center);
 
-        //System.out.println(this.center.toString());
-        //System.out.println(dist_traveled);
-
         if(dist_traveled > range){
             this.removeFromPlanet();
             System.out.println("[StartBullet] removed.");
         }
 
-        //collisionHandling();
-    }
-
-    private void collisionHandling(){
-        if(nearestPlanet.getCollisionShape().isCollidingWith(this.getCollisionShape())){
-            this.removeFromPlanet();
-        } else {
-            for (Entity e : nearestPlanet.entities) {
-                if (e != this && e != shooter) {
-                    if (e.getCollisionShape().isCollidingWith(this.getCollisionShape())) {
-                        if (e instanceof Living) {
-                            ((Living) e).takeDamage(damage);
-                        }
-                        this.removeFromPlanet();
-                    }
-                }
-            }
-        }
     }
 
     @Override
     public void draw(SpriteBatch spriteBatch) {
-        spriteBatch.begin();
+        //spriteBatch.begin();
         spriteBatch.draw(texture,center.x-radius, center.y - radius, radius*2, radius*2);
-        spriteBatch.end();
+        //spriteBatch.end();
 
     }
 

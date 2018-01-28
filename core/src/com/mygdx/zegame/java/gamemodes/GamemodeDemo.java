@@ -5,54 +5,66 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.mygdx.zegame.java.enemies.EnemyController;
-import com.mygdx.zegame.java.enemies.roller.Roller;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.Vector3;
+import com.mygdx.zegame.java.enemies.EnemySpawner;
+import com.mygdx.zegame.java.enemies.rocket.ERocket;
 import com.mygdx.zegame.java.gameworld.Universe;
-import com.mygdx.zegame.java.gameworld.entities.Entity;
 import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
-import com.mygdx.zegame.java.gameworld.entities.nonmoving.CircleFire;
 import com.mygdx.zegame.java.gameworld.entities.nonmoving.NorthPole;
 import com.mygdx.zegame.java.gameworld.entities.nonmoving.PickupShield;
-import com.mygdx.zegame.java.gameworld.planets.Planet;
+import com.mygdx.zegame.java.gameworld.planets.FirstPlanet;
 import com.mygdx.zegame.java.input.Button;
+import com.mygdx.zegame.java.screens.ScreenEnum;
+import com.mygdx.zegame.java.screens.ScreenManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GamemodeDemo {
-    public List<Entity> fires, shieldPickups;
-    boolean gameOver;
+    public boolean gameOver;
+
+    private Universe universe;
+    FirstPlanet fp;
+
     private CirclePlayer circlePlayer;
+
+
+    private EnemySpawner enemySpawner;
+
+    //PAUSED SCREEN UI
     SpriteBatch hudBatch;
     BitmapFont font, fontStatus;
 
-
-    private EnemyController enemyController;
+    BitmapFont fontAmmo, fontFuel, font22;
 
     private Texture playerStatusUnderlay, playerStatusOverlay, playerStatusHpBar,playerStatusArmorBar;
-    private Texture greyBar;
-
     private Texture inventoryUnderlay, inventoryFrame, inventoryFrameSelected;
-
     private Texture topUnderlay;
-
     private Texture texPaused;
 
     public List<Button> pausedButtons;
-
-
-
-    Planet fp;
 
     Texture goTexture;
     public GamemodeDemo(CirclePlayer circlePlayer, Universe universe){
         this.circlePlayer = circlePlayer;
 
+        this.universe = universe;
+
         //HUD
         hudBatch = new SpriteBatch();
         font = new BitmapFont();
         font.setColor(Color.RED);
+
+        fontAmmo = new BitmapFont();
+        fontAmmo.setColor(Color.YELLOW);
+        fontAmmo.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        fontFuel = new BitmapFont();
+        fontFuel.setColor(Color.ORANGE);
+        fontFuel.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         fontStatus = new BitmapFont();
         fontStatus.setColor(Color.BLACK);
@@ -60,14 +72,18 @@ public class GamemodeDemo {
 
         fontStatus.getData().setScale(1.3f);
 
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/micross.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter pa = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        pa.size = 50;
+        font22 = generator.generateFont(pa);
+        generator.dispose();
+
         goTexture = new Texture("gameover.jpg");
 
         playerStatusUnderlay = new Texture("sprites/gui/gui_underlay.png");
         playerStatusOverlay = new Texture("sprites/gui/gui_overlay.png");
         playerStatusHpBar = new Texture("sprites/gui/gui_hp_bar.png");
         playerStatusArmorBar = new Texture("sprites/gui/gui_armor_bar.png");
-
-        greyBar = new Texture("sprites/gui/grey_bar.png");
 
         inventoryUnderlay = new Texture("sprites/gui/inventory/underlay.png");
         inventoryFrame = new Texture("sprites/gui/inventory/frame.png");
@@ -98,61 +114,69 @@ public class GamemodeDemo {
 
         this.circlePlayer = circlePlayer;
 
-        fp = universe.planets.get(0);
-        //fp.entities.add(circlePlayer);
+        fp = (FirstPlanet) universe.planets.get(0);
 
-        fires = new ArrayList<Entity>();
-        CircleFire cs = new CircleFire(fp.getX()-fp.getRadius()-5f,fp.getY(),10f,fp);
-        fires.add(cs);
-        //fp.entities.add(cs);  //Drawn with wordld
+        enemySpawner = new EnemySpawner(fp);
 
-        shieldPickups = new ArrayList<Entity>();
-        PickupShield ps = new PickupShield(0, fp);
-        shieldPickups.add(ps);
-        //fp.entities.add(ps);
-
-        NorthPole np = new NorthPole(fp);
-        //fp.entities.add(np);
-
-        Roller roller = new Roller(fp.getX()-8000, fp.getY()+fp.getRadius()+1000, fp);
+        //TEST OBJECTS
+        new PickupShield(92, fp);
+        new NorthPole(fp);
+        new ERocket(130,300, fp, 1, 5,0, 11, circlePlayer);
+        //new Roller(fp.getX()-8000, fp.getY()+fp.getRadius()+1000, fp, 2, 30, 0, 6);
     }
 
     public void update(float deltaTime){
-        //Shield pickup
-        ArrayList<Entity> toRemove = new ArrayList<Entity>();
-        for(Entity e : shieldPickups){
-            if(e.getBaseCollision().isCollidingWith(circlePlayer.getBaseCollision())){
-                toRemove.add(e);
-                fp.entities.remove(e);
-                circlePlayer.gainShield();
-                System.out.println("[Gamemode]: Shield removed");
-            }
-        }
-        shieldPickups.removeAll(toRemove);
 
-        //Collision with spikes
-        for(Entity e : fires){
-            if(e.getBaseCollision().isCollidingWith(circlePlayer.getBaseCollision())){
-                circlePlayer.takeDamage(30*deltaTime);
-            }
-        }
+        enemySpawner.update(deltaTime, circlePlayer);
+
         if(circlePlayer.isDead()){
             gameOver = true;
         }
     }
 
-    public void drawHud(){
+    public void drawHud(int objectsDrawn, int collisionChecks){
         hudBatch.begin();
 
+        Vector3 ammoInfo = circlePlayer.getAmmoInOutofTotal();
+
+
         //DEBUG HUD ---
-        font.draw(hudBatch, "Health: " + circlePlayer.healthPoints, 20, Gdx.graphics.getHeight()-20);
-        font.draw(hudBatch, "Shield: " + circlePlayer.armorPoints, 20, Gdx.graphics.getHeight()-40);
-        font.draw(hudBatch, "FPS: "+Gdx.graphics.getFramesPerSecond(),20,Gdx.graphics.getHeight()-60);
+        /*
+        int i = 0;
+        i++;
+        font.draw(hudBatch, "Health: " + circlePlayer.healthPoints, 20, Gdx.graphics.getHeight()-i*20);
 
+        i++;
+        font.draw(hudBatch, "Shield: " + circlePlayer.armorPoints, 20, Gdx.graphics.getHeight()-i*20);
+
+        i++;
+        font.draw(hudBatch, "FPS: "+Gdx.graphics.getFramesPerSecond(),20,Gdx.graphics.getHeight()-i*20);
+
+        i++;
         String weaponName = (circlePlayer.getSelectedWeapon() != null) ? circlePlayer.getSelectedWeapon().name : "null";
-        font.draw(hudBatch, "Weapon ["+circlePlayer.selectedWeapon +"]: " + weaponName, 20, Gdx.graphics.getHeight()-80);
-        font.draw(hudBatch, "Playa ["+circlePlayer.toString() +"]: " + weaponName, 20, Gdx.graphics.getHeight()-100);
+        font.draw(hudBatch, "Weapon ["+circlePlayer.selectedWeapon +"]: " + weaponName, 20, Gdx.graphics.getHeight()-i*20);
 
+        i++;
+        font.draw(hudBatch, "DRAWING OPTIMIZATION [Drawn/All]: ["+ objectsDrawn+"/"+universe.getAllEntities().size()+"]", 20, Gdx.graphics.getHeight()-i*20);
+
+        i++;
+        Vector3 ammoInfo = circlePlayer.getAmmoInOutofTotal();
+        font.draw(hudBatch, "Ammo: " + ammoInfo.x +"/"+ammoInfo.y+" | "+ammoInfo.z, 20, Gdx.graphics.getHeight()-i*20);
+
+        i++;
+        font.draw(hudBatch, "Fuel: " + circlePlayer.jetpackFuel +"/"+circlePlayer.JETPACK_FUEL_MAX, 20, Gdx.graphics.getHeight()-i*20);
+
+        i++;
+        font.draw(hudBatch, "Collision checks with QUADTREE/without: "+ collisionChecks+"/"+universe.getAllEntities().size()*universe.getAllEntities().size(), 20, Gdx.graphics.getHeight()-i*20);
+
+        i++;
+        font.draw(hudBatch, "Health: " + circlePlayer.healthPoints, 20, Gdx.graphics.getHeight()-i*20);
+        */
+
+        font22.draw(hudBatch, "SCORE: " + circlePlayer.getScore(), Gdx.graphics.getWidth()/100 * 80, Gdx.graphics.getHeight()/100f * 98f );
+
+
+        //end debug hud
 
         //PLAYER HUD ---
         //hudBatch.draw(greyBar, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()/6);
@@ -198,6 +222,7 @@ public class GamemodeDemo {
         float betweenStartAndMidX = midColX  - (underlayX + underlayWidth);
         float leftColX =  underlayX + underlayWidth + betweenStartAndMidX/2 - frameWH/2;
         float rightColX = underlayX + underlayWidth + underlayWidth/4 + betweenStartAndMidX/2;
+
 
         hudBatch.draw(inventoryFrame, midColX, botRowY, frameWH, frameWH );
         hudBatch.draw(inventoryFrame, midColX, topRowY, frameWH, frameWH );
@@ -247,13 +272,33 @@ public class GamemodeDemo {
             hudBatch.draw(circlePlayer.weapons[5].icon, rightColX, botRowY, frameWH, frameWH);
         }
 
+        //Ammo bar
+
+
+        if(circlePlayer.weapons[circlePlayer.selectedWeapon] != null) {
+            if(ammoInfo.x == 0){
+                fontAmmo.setColor(Color.RED);
+            } else {
+                fontAmmo.setColor(Color.YELLOW);
+            }
+
+            fontAmmo.draw(hudBatch, "AMMO: " + (int) ammoInfo.x + "/" +(int)ammoInfo.y+ " | " + (int) ammoInfo.z, underlayX + underlayWidth/2 + underlayWidth/10, underlayY + underlayHeight/2 + underlayHeight/15);
+        }
+
+
+        if(circlePlayer.jetpackFuel <= 0){
+            fontFuel.setColor(Color.RED);
+        } else {
+            fontFuel.setColor(Color.ORANGE);
+
+        }
+
+        int fuelPercent = Math.max((int)((circlePlayer.jetpackFuel/circlePlayer.JETPACK_FUEL_MAX) * 100), 0);
+        fontFuel.draw(hudBatch, "FUEL: "+ fuelPercent +"%",underlayX + underlayWidth/10, underlayY + underlayHeight/2 + underlayHeight/15);
+
+
         //TOP BAR
-        hudBatch.draw(topUnderlay, underlayX, underlayY+underlayHeight,underlayWidth,underlayHeight/2);
-
-
-
-
-
+        //hudBatch.draw(topUnderlay, underlayX, underlayY+underlayHeight,underlayWidth,underlayHeight/2);
 
         hudBatch.end();
     }
@@ -275,6 +320,5 @@ public class GamemodeDemo {
 
         float x = Gdx.input.getX();
         float y = Gdx.input.getY();
-
     }
 }

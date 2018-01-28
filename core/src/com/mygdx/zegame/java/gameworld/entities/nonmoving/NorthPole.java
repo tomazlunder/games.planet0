@@ -23,9 +23,9 @@ public class NorthPole extends Entity {
 
     @Override
     public void draw(SpriteBatch spriteBatch) {
-        spriteBatch.begin();
+        //spriteBatch.begin();
         spriteBatch.draw(texture,this.center.x-texture.getWidth()/2, this.center.y);
-        spriteBatch.end();
+        //spriteBatch.end();
     }
 
     @Override

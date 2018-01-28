@@ -18,6 +18,7 @@ public abstract class Planet implements BasicCollision{
 
     public List<Entity> entities;
     public List<Entity> toRemoveFromEntities;
+    public List<Entity> toAddToEntities;
 
     public Planet(Universe universe, float x, float y, float radius){
         this.universe = universe;
@@ -25,6 +26,8 @@ public abstract class Planet implements BasicCollision{
 
         this.entities = new ArrayList<Entity>();
         this.toRemoveFromEntities = new ArrayList<Entity>();
+        this.toAddToEntities = new ArrayList<Entity>();
+
 
     }
 
@@ -76,5 +79,8 @@ public abstract class Planet implements BasicCollision{
 
         entities.removeAll(toRemoveFromEntities);
         toRemoveFromEntities = new ArrayList<Entity>();
+
+        entities.addAll(toAddToEntities);
+        toAddToEntities = new ArrayList<Entity>();
     }
 }

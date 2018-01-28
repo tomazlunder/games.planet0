@@ -44,7 +44,7 @@ public class SettingsScreen implements Screen {
 
         float buttonW = screenW / 4;
 
-        background = new Texture("menus/settings/settingsBG.png");
+        background = new Texture("menus/settings/settings.png");
 
 
 

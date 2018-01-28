@@ -7,6 +7,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -23,6 +25,8 @@ import com.mygdx.zegame.java.gameworld.entities.moving.player.CirclePlayer;
 import com.mygdx.zegame.java.gameworld.planets.FirstPlanet;
 import com.mygdx.zegame.java.gameworld.planets.Planet;
 import com.mygdx.zegame.java.input.InputProcessorWS;
+import com.mygdx.zegame.java.physics.collision.shapes.CircleShape;
+import com.mygdx.zegame.java.physics.collision.shapes.CollisionShape;
 import com.mygdx.zegame.java.sound.SoundSingleton;
 
 import java.awt.event.MouseWheelEvent;
@@ -44,6 +48,12 @@ public class GameScreen implements Screen, MouseWheelListener{
     private OrthographicCamera cam;
     private CameraType cameraType;
 
+    float WALKING_ZOOM = 57;
+    float JETPACK_ZOOM = 65;
+    float ZOOM_STEP = 0.05f;
+    float ZOOM_MAX_HEIGHT_ADDITON = 8;
+    float zoom;
+
     //Main game objects
     private Universe universe;
     private CirclePlayer circlePlayer;
@@ -52,6 +62,13 @@ public class GameScreen implements Screen, MouseWheelListener{
     private int tick;
 
     private Quadtree quad;
+
+    int numberOfEntitiesDrawn;
+    int collisionChecks;
+
+
+    //SpriteBatch for drawing the HUD
+    SpriteBatch hudBatch;
 
 
 
@@ -84,6 +101,7 @@ public class GameScreen implements Screen, MouseWheelListener{
         cam = new OrthographicCamera(Constants.DEFAULT_UNIVERSE_SIZE, Constants.DEFAULT_UNIVERSE_SIZE * (h / w));
         cam.position.set(cam.viewportWidth, cam.viewportHeight, 0);
         cam.update();
+        zoom = WALKING_ZOOM;
 
         //Init gamemode
         gamemodeDemo = new GamemodeDemo(circlePlayer, universe);
@@ -97,10 +115,18 @@ public class GameScreen implements Screen, MouseWheelListener{
         isLoaded = true;
 
         quad = new Quadtree(0, 0,0,universe.getSize(), universe.getSize());
+
+        numberOfEntitiesDrawn = 0;
+        collisionChecks = 0;
     }
 
     @Override
     public void render(float delta) {
+        if(gamemodeDemo.gameOver){
+            game.score = circlePlayer.getScore();
+            ScreenManager.getInstance().showScreen(ScreenEnum.GAMEOVER);
+        }
+
         float deltaTime = Gdx.graphics.getDeltaTime();
 
         //0. clearing the collision tree
@@ -113,10 +139,16 @@ public class GameScreen implements Screen, MouseWheelListener{
         if(!isPaused) {
             collisionDetectionAndHandling();
 
+            drawingOptimizationPrep();
+
             gamemodeDemo.update(deltaTime);
             universe.update(deltaTime);
             cam.update();
+
+            drawingOptimization();
         }
+
+
 
         //3. DRAW
         draw();
@@ -153,10 +185,11 @@ public class GameScreen implements Screen, MouseWheelListener{
     @Override
     public void dispose() {
         SoundSingleton.getInstance().gameMusic.stop();
+        SoundSingleton.getInstance().jetpack.stop();
     }
 
     /*
-     * COLLISION DETECTION
+     * COLLISION DETECTION AND DRAWING OPTIMISATION (Only draws what camera can see)
      */
     public void collisionDetectionAndHandling() {
         //Inserting all objects into collision tree
@@ -166,6 +199,7 @@ public class GameScreen implements Screen, MouseWheelListener{
             }
         }
 
+        collisionChecks = 0;
         //Possible collision detection
         List<Entity> returnObjects = new ArrayList();
         for (Entity e1 : universe.planets.get(0).entities) {
@@ -174,14 +208,42 @@ public class GameScreen implements Screen, MouseWheelListener{
             returnObjects.remove(e1);
 
             for (Entity e2 : returnObjects) {
+                collisionChecks++;
                 //If collision is possible, do actual collision detection
                 if (e1.getCollisionShape().isCollidingWith(e2.getCollisionShape())) {
-                    System.out.printf("[QUADTREE] Collision detected:" + e1.getName() + " - " + e2.getName() + ". ");
+                    //System.out.printf("[QUADTREE] Collision detected:" + e1.getName() + " - " + e2.getName() + ". ");
                     CollisionHandler.handleCollision(e1,e2);
                 }
             }
         }
     }
+
+    public void drawingOptimizationPrep(){
+        for(Entity e : universe.getAllEntities()){
+            e.setVisibility(false);
+        }
+    }
+
+    public void drawingOptimization(){
+        Vector2 center = Commons.vec3to2(cam.unproject(new Vector3(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2,0)));
+
+        float w = Commons.vec3to2(cam.unproject(new Vector3(Gdx.graphics.getWidth(), 0,0))).x - Commons.vec3to2(cam.unproject(new Vector3(0, 0,0))).x;
+        float h = Commons.vec3to2(cam.unproject(new Vector3(0, Gdx.graphics.getHeight(),0))).x - Commons.vec3to2(cam.unproject(new Vector3(0, 0,0))).x;
+
+
+        float radius = (float) Math.sqrt((w*w)+(h*h));
+        CollisionShape cameraShape = new CircleShape(center.x,center.y,radius);
+
+        numberOfEntitiesDrawn = 0;
+
+        for(Entity e : universe.getAllEntities()){
+            if(cameraShape.isCollidingWith(e.getCollisionShape())){
+                e.setVisibility(true);
+                numberOfEntitiesDrawn++;
+            }
+        }
+    }
+
 
     /*
      * DRAWING RELATED FUNCTIONS
@@ -202,7 +264,7 @@ public class GameScreen implements Screen, MouseWheelListener{
         if(isPaused){
             gamemodeDemo.drawPausedScreenAndMouseCmd();
         } else {
-            gamemodeDemo.drawHud();
+            gamemodeDemo.drawHud(numberOfEntitiesDrawn, collisionChecks);
         }
     }
 
@@ -230,6 +292,7 @@ public class GameScreen implements Screen, MouseWheelListener{
     }
 
 
+
     /*
      * CAMERA RELATED FUNCTIONS
      */
@@ -251,7 +314,7 @@ public class GameScreen implements Screen, MouseWheelListener{
     private void cameraFollowSmooth() {
         //Cur possition
         Vector2 camVec = Commons.vec3to2(cam.position);
-        Vector2 newVec = circlePlayer.getPosition().sub(camVec).scl(0.4f);
+        Vector2 newVec = circlePlayer.getPosition().sub(camVec).scl(0.2f);
 
         cam.position.x += newVec.x;
         cam.position.y += newVec.y;
@@ -269,9 +332,21 @@ public class GameScreen implements Screen, MouseWheelListener{
         cam.position.y += camVec.y;
 
 
+
+        if(circlePlayer.jetpackOn){
+            if(zoom < JETPACK_ZOOM) zoom+=ZOOM_STEP;
+        } else{
+            if(zoom > WALKING_ZOOM) zoom-= ZOOM_STEP;
+        }
+
+        zoom += ZOOM_MAX_HEIGHT_ADDITON * circlePlayer.getPercentageHeight();
+
         cam.up.set(0, -1, 0);
         cam.rotate(-circlePlayer.getRotationFromCenter() - 90);
-        cam.zoom = ((Constants.DEFAULT_PLAYER_SIZE * 50) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
+        cam.zoom = ((Constants.DEFAULT_PLAYER_SIZE * zoom) / (float) Constants.DEFAULT_UNIVERSE_SIZE);
+
+        zoom -= ZOOM_MAX_HEIGHT_ADDITON * circlePlayer.getPercentageHeight();
+
     }
 
     /*
@@ -296,8 +371,11 @@ public class GameScreen implements Screen, MouseWheelListener{
     }
 
     private void handleFreeInputs() {
-        if (Gdx.input.isTouched()) {
-            //System.out.printf("Clicked: [" + Gdx.input.getX() + ", " + Gdx.input.getY() + "] \n");
+        if (Gdx.input.justTouched()) {
+            float x =  Gdx.input.getX();
+            float y =  Gdx.input.getY();
+            System.out.printf("Clicked: [" + x + ", " + y + "]  " + cam.unproject(new Vector3(x, y, 0)) +"\n");
+
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.R)) {
@@ -339,6 +417,7 @@ public class GameScreen implements Screen, MouseWheelListener{
 
     private void handleGameUniversalInputs() {
         //Changes camera mode [PLAYER/FREE]
+        /*
         if (Gdx.input.isKeyJustPressed(Input.Keys.V)) {
             if (cameraType == CameraType.PLAYER) {
                 cameraType = CameraType.FREE;
@@ -358,6 +437,7 @@ public class GameScreen implements Screen, MouseWheelListener{
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             isPaused = true;
         }
+        */
     }
 
     private void handlePausedInputs(){
@@ -402,12 +482,24 @@ public class GameScreen implements Screen, MouseWheelListener{
             circlePlayer.movingRight = true;
         }
 
+        if (Gdx.input.isKeyPressed(Input.Keys.W)){
+            circlePlayer.movingUp = true;
+        }
+
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             circlePlayer.jumping = true;
         }
 
+        if (Gdx.input.isKeyPressed(Input.Keys.S)){
+            circlePlayer.movingDown = true;
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)){
             circlePlayer.reload();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){
+            circlePlayer.toggleJetpack();
         }
 
         if (Gdx.input.justTouched()){
@@ -415,6 +507,18 @@ public class GameScreen implements Screen, MouseWheelListener{
                 circlePlayer.fireWeapon();
             }
         }
+
+        /*
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_9)){
+            game.score = circlePlayer.getScore();
+            ScreenManager.getInstance().showScreen(ScreenEnum.GAMEOVER);
+
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_8)){
+            circlePlayer.addScore(5 );
+        }
+        */
 
         Vector3 cursorPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         Vector3 aimingAt = cam.unproject(cursorPos);

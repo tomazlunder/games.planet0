@@ -27,6 +27,17 @@ public enum ScreenEnum {
         public Screen getScreen(GameClass game) {
             return new SettingsScreen(game);
         }
+    },
+
+    GAMEOVER {
+        public Screen getScreen(GameClass game) {
+            return new GameOverScreen(game);
+        }
+    },
+    SCORE {
+        public Screen getScreen(GameClass game) {
+            return new ScoreScreen(game);
+        }
     };
 
     public abstract Screen getScreen(GameClass game);

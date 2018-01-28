@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.zegame.java.settings.DefaultVolumeSettings;
 import com.mygdx.zegame.java.sound.SoundSingleton;
+import com.mygdx.zegame.java.weapons.ammo.AmmoEnum;
 
 public abstract class Weapon {
     public String name;
@@ -19,6 +20,8 @@ public abstract class Weapon {
 
     public Sprite sprite;
     public Texture icon;
+
+    public AmmoEnum ammoType;
 
 
     //Called with number of bullets player owns, return number of bullets owned after reload

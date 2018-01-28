@@ -21,33 +21,25 @@ public class PickupShield extends Entity{
     private float radius;
 
     public PickupShield(float rotation, Planet planet){
-        super(planet.getPointOnSurfaceWithRotation(rotation, 10),10f,planet);
-        this.radius = 10;
+        super(planet.getPointOnSurfaceWithRotation(rotation, 10),15,planet);
+        radius = 15;
+
 
         this.name = "PickupShield";
-        this.texture = new Texture("shield.jpg");
+        this.texture = new Texture("shield.png");
         sprite = new Sprite(texture,200,200);
     }
 
     @Override
-    public void update(float deltaTime){
-
-    }
-
-    private void collisionHandling(){
-
-    }
-
-    @Override
     public void draw(SpriteBatch spriteBatch) {
-        spriteBatch.begin();
+        //spriteBatch.begin();
         sprite.setPosition(center.x-sprite.getWidth()/2,center.y-sprite.getHeight()/2);
         sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
         sprite.setScale(radius*2/sprite.getWidth());
         sprite.setRotation(rotationFromCenter-90);
 
         sprite.draw(spriteBatch);
-        spriteBatch.end();
+        //spriteBatch.end();
     }
 
     @Override

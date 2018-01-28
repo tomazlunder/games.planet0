@@ -19,11 +19,10 @@ public class Roller extends MovingEntity implements Living{
     private float DEFAULT_GRAVITY = 0.38f;
     private float SPEED_FACTOR = 60;
 
-    private float MAX_HEALTH = 30;
-    private float MAX_ARMOR = 0;
     private float healthPoints;
     private float armorPoints;
 
+    private float maxHealth, maxArmor;
 
     Sprite sprite;
 
@@ -31,23 +30,22 @@ public class Roller extends MovingEntity implements Living{
 
     public float angle;
 
-    public Roller(float x, float y, Planet planet){
-        super(x,y, Constants.DEFAULT_PLAYER_SIZE*2f,planet);
+
+
+    public Roller(float x, float y, Planet planet, float scaleToPlayer ,float maxHP, float maxArmor, float maxSpeed){
+        super(x,y,Constants.DEFAULT_PLAYER_SIZE * scaleToPlayer, planet);
 
         name = "Roller";
         sprite = new Sprite(new Texture("sprites/enemies/roller/roller512.png"));
-
-        //When roller moves the length of circumference in any direction he makes full rotation
         circumference = 2f * (float) Math.PI * this.radius;
-
         maxAcceleration = 4;
-        maxSpeed = 10;
 
-        accelerationStep = 2;
+        this.maxHealth = maxHP;
+        this.maxArmor = maxArmor;
+        healthPoints = maxHP;
+        armorPoints = maxArmor;
 
-        //Living
-        healthPoints = MAX_HEALTH;
-        armorPoints = MAX_ARMOR;
+        this.maxSpeed = maxSpeed;
     }
 
     @Override
@@ -62,9 +60,9 @@ public class Roller extends MovingEntity implements Living{
             sprite.rotate(angle);
         }
 
-        spriteBatch.begin();
+        //spriteBatch.begin();
         sprite.draw(spriteBatch);
-        spriteBatch.end();
+        //spriteBatch.end();
     }
 
     @Override
@@ -86,7 +84,7 @@ public class Roller extends MovingEntity implements Living{
 
         this.calcUnitVectors();
 
-        this.speed = new Vector2(4,0);
+        this.speed = new Vector2(maxSpeed,0);
 
         acceleration.y -= DEFAULT_GRAVITY;
         if(isGrounded() && this.acceleration.y < 0){
@@ -130,7 +128,7 @@ public class Roller extends MovingEntity implements Living{
 
     @Override
     public float getMaxHealth() {
-        return MAX_HEALTH;
+        return maxHealth;
     }
 
     @Override
@@ -140,7 +138,7 @@ public class Roller extends MovingEntity implements Living{
 
     @Override
     public float getMaxArmor() {
-        return MAX_ARMOR;
+        return maxArmor;
     }
 
     @Override

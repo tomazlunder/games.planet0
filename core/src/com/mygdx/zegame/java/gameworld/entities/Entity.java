@@ -27,6 +27,8 @@ public abstract class Entity implements BasicCollision{
 
     private boolean removed;
 
+    private boolean draw;
+
     public Entity(float x, float y, float radius, Planet planet){
         this.center = new Vector2(x,y);
         this.radius = radius;
@@ -34,7 +36,7 @@ public abstract class Entity implements BasicCollision{
         this.baseCollision = new CircleShape(x,y,radius);
         this.nearestPlanet = planet;
 
-        this.nearestPlanet.entities.add(this);
+        this.nearestPlanet.toAddToEntities.add(this);
 
         calculateRotationFromCenter();
         removed = false;
@@ -42,11 +44,17 @@ public abstract class Entity implements BasicCollision{
 
     public Entity(Vector2 center, float radius, Planet planet){
         this.center = center;
+        this.radius = radius;
         this.collision = DEFAULT_COLLISION;
         this.baseCollision = new CircleShape(center.x,center.y,radius);
         this.nearestPlanet = planet;
 
+        this.nearestPlanet.toAddToEntities.add(this);
+
+
         calculateRotationFromCenter();
+        removed = false;
+
     }
 
     /**
@@ -115,13 +123,22 @@ public abstract class Entity implements BasicCollision{
     /**
      * Basic functions
      */
-    public void update(float deltaTime){};
+    public void update(float deltaTime){
+    };
 
     public abstract void draw(SpriteBatch spriteBatch);
     public abstract void draw(ShapeRenderer shapeRenderer);
 
     public String getName(){
         return name;
+    }
+
+    public boolean isVisible(){
+        return draw;
+    }
+
+    public void setVisibility(boolean visible){
+        draw = visible;
     }
 
 

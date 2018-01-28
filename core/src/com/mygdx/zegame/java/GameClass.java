@@ -18,6 +18,8 @@ public class GameClass extends Game {
     public SpriteBatch spriteBatch;
     public ShapeRenderer shapeRenderer;
 
+    public int score;
+
 
     @Override
     public void create() {

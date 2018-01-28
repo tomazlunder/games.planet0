@@ -18,7 +18,7 @@ import java.util.List;
 
 public class MainMenuScreen implements Screen {
 
-    Texture texture_bg = new Texture("menus/main/menu_screen.png");
+    Texture texture_bg = new Texture("menus/main/menu_screen2.png");
 
     //FOR EASY DISPOSAL
     float fromLeftEdge;
@@ -170,6 +170,7 @@ public class MainMenuScreen implements Screen {
     }
 
     private void scoresClicked() {
+        ScreenManager.getInstance().pauseAndOpen(ScreenEnum.SCORE);
 
     }
 
