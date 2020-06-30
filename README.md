@@ -1,4 +1,4 @@
-# games.zegame
+# games.planet0
 
 PLANET ZERO
 Development name: zegame
